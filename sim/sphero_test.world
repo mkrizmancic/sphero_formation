@@ -1,0 +1,61 @@
+define sphero position
+(
+#	block
+#	(
+#			points 3
+#			point[0] [1 0.5]
+#			point[1] [0 1]
+#			point[2] [0 0]                
+#			z [0 1]
+#	)
+
+	size [0.15 0.15 0.15]
+	origin [0 0 0 0]
+
+	gui_nose 1
+	drive "omni"
+	localization "gps"
+	localization_origin [0 0 0 0]
+)
+
+define floorplan model
+(
+	# sombre, sensible, artistic
+	color "gray30"
+
+	# most maps will need a bounding box
+	boundary 1
+
+	gui_nose 1
+	gui_grid 0
+	gui_outline 0
+)
+
+# set the resolution of the underlying raytrace model in meters
+resolution 0.02
+
+interval_sim 100  # simulation timestep in milliseconds
+
+
+window
+( 
+	size [ 960.000 540.000 ] 
+
+	rotate [ 0.000 0 ]
+	scale 50
+)
+
+# load an environment bitmap
+floorplan
+( 
+	name "sphero_tes"
+	bitmap "sphero_test.png"
+	size [100 100 1]  # duzina sirina visina
+	pose [ 0 0 0 0 ]
+)
+
+# throw in two robots
+sphero( pose [ 1 1 0 0.000 ] name "sphero_0" color "red")
+sphero( pose [ -1 1 0 0.000 ] name "sphero_1" color "blue")
+sphero( pose [ 1 -1 0 0.000 ] name "sphero_2" color "yellow")
+sphero( pose [ -1 -1 0 0.000 ] name "sphero_3" color "green")
