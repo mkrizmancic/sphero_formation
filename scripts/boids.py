@@ -118,19 +118,19 @@ class Boid():
         alignment = self.compute_alignment(nearest_agents)
         cohesion = self.compute_cohesion(nearest_agents)
         separation = self.compute_separation(nearest_agents)
-        print(alignment)
-        print(cohesion)
-        print(separation)
-        print
+        # print(alignment)
+        # print(cohesion)
+        # print(separation)
+        # print
 
-        print(self.velocity)
+        # print(self.velocity)
         self.velocity += alignment * self.alignment_factor
         self.velocity += cohesion * self.cohesion_factor
         self.velocity += separation * self.separation_factor
         self.velocity.normalize()
         self.velocity *= self.max_speed
-        print(self.velocity)
-        print
+        # print(self.velocity)
+        # print
 
         vel = Twist()
         vel.linear.x = self.velocity.x

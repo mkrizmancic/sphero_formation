@@ -2,7 +2,7 @@
 
 import rospy
 from geometry_msgs.msg import Twist
-from flocking.msg import OdometryArray
+from sphero_formation.msg import OdometryArray
 from boids import Boid
 
 
@@ -20,7 +20,7 @@ class ReynoldsController():
         self.cmd_vel = Twist()
 
         # Create a subscriber
-        rospy.Subscriber("neighbours", OdometryArray, self.callback, queue_size=1)
+        rospy.Subscriber("nearest", OdometryArray, self.callback, queue_size=1)
 
         # Initialize other variables
         self.agent = Boid()

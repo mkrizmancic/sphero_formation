@@ -1,4 +1,5 @@
 <launch>
+	<!-- Start Reynolds controller for each Sphero -->
 	<group ns="robot_0">
 		<node pkg="sphero_formation" type="reynolds_controller.py" name="con0" output="screen"/>
 	</group>
@@ -15,7 +16,12 @@
 		<node pkg="sphero_formation" type="reynolds_controller.py" name="con3"/>
 	</group>
 
-	<node pkg="sphero_formation" type="neighbour_search.py" name="search" output="screen"/>
+	<!-- Start nearest_search node: search for other Spheros in range-->
+	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen"/>
 
-	<node pkg="stage_ros" type="stageros" name="simulator" args="$(find sphero_formation)/sim/sphero_test.world"/>
+	<!-- Start Stage simulator -->
+	<node pkg="stage_ros" type="stageros" name="simulator" args="$(find sphero_formation)/sim/empty_10x10.world"/>
+
+	<!-- Start simulation_tf node: provide tf transforms for simulation-->
+	<node pkg="sphero_formation" type="simulation_tf.py" name="tf_server"/>
 </launch>

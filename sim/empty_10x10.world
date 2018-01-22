@@ -48,9 +48,9 @@ window
 # load an environment bitmap
 floorplan
 ( 
-	name "sphero_tes"
-	bitmap "sphero_test.png"
-	size [100 100 1]  # duzina sirina visina
+	name "empty_10x10"
+	bitmap "empty_10x10.bmp"
+	size [10 10 1]  # duzina sirina visina
 	pose [ 0 0 0 0 ]
 )
 
