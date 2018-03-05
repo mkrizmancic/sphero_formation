@@ -17,6 +17,13 @@ def get_agent_position(agent):
     return pos
 
 
+def get_obst_position(obst):
+    pos = Vector2()
+    pos.x = obst.position.x
+    pos.y = obst.position.y
+    return pos
+
+
 class Vector2():
     """docstring for Vector2"""
 
@@ -112,12 +119,24 @@ class Boid():
         return direction
 
     # TODO: dodati izbjegavanje prepreka
+    def compute_avoids(self, avoids):
+        direction = Vector2()
+        for obst in avoids:
+            obst_position = get_obst_position(obst)
+            direction += obst_position
 
-    def compute_velocity(self, nearest_agents):
+        if avoids:
+            direction /= len(avoids)
+            direction *= -1  # negate the vector
+            direction.normalize()  # normalize vector (divide with its length)
+        return direction
+
+    def compute_velocity(self, nearest_agents, avoids):
         self.update_parameters()
         alignment = self.compute_alignment(nearest_agents)
         cohesion = self.compute_cohesion(nearest_agents)
         separation = self.compute_separation(nearest_agents)
+        avoid = self.compute_avoids(avoids)
         # print(alignment)
         # print(cohesion)
         # print(separation)
@@ -127,6 +146,7 @@ class Boid():
         self.velocity += alignment * self.alignment_factor
         self.velocity += cohesion * self.cohesion_factor
         self.velocity += separation * self.separation_factor
+        self.velocity += avoid
         self.velocity.normalize()
         self.velocity *= self.max_speed
         # print(self.velocity)
