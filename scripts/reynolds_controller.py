@@ -30,7 +30,7 @@ class ReynoldsController():
         self.agent = Boid()
 
         # Main while loop.
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(100)
         while not rospy.is_shutdown():
             # Publish our command
             pub.publish(self.cmd_vel)

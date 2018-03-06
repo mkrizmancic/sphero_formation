@@ -4,6 +4,7 @@ from geometry_msgs.msg import Twist
 
 
 def get_agent_velocity(agent):
+    """Return agent velocity as Vector2 instance."""
     vel = Vector2()
     vel.x = agent.twist.twist.linear.x
     vel.y = agent.twist.twist.linear.y
@@ -11,6 +12,7 @@ def get_agent_velocity(agent):
 
 
 def get_agent_position(agent):
+    """Return agent position as Vector2 instance."""
     pos = Vector2()
     pos.x = agent.pose.pose.position.x
     pos.y = agent.pose.pose.position.y
@@ -18,6 +20,7 @@ def get_agent_position(agent):
 
 
 def get_obst_position(obst):
+    """Return obstacle position as Vector2 instance."""
     pos = Vector2()
     pos.x = obst.position.x
     pos.y = obst.position.y
@@ -25,7 +28,12 @@ def get_obst_position(obst):
 
 
 class Vector2():
-    """docstring for Vector2"""
+    """
+    2D vector class representation with x and y components.
+
+    Enables simple addition, substraction, multiplication, division and
+    normalization of 2D vectors.
+    """
 
     def __init__(self, x=0, y=0):
         self.x = x
@@ -57,9 +65,11 @@ class Vector2():
         return "({}, {})".format(self.x, self.y)
 
     def norm(self):
+        """Return the norm of the vector."""
         return math.sqrt(pow(self.x, 2) + pow(self.y, 2))
 
     def normalize(self):
+        """Normalize the vector."""
         d = self.norm()
         if d:
             self.x /= d
@@ -69,11 +79,13 @@ class Vector2():
 class Boid():
 
     def __init__(self):
+        """Create an empty boid and update parametars."""
         self.position = Vector2()
         self.velocity = Vector2()
         self.update_parameters()
 
     def update_parameters(self):
+        """Save Reynolds controller parametars in class variables."""
         self.alignment_factor = rospy.get_param('/dyn_reconf/alignment_factor')
         self.cohesion_factor = rospy.get_param('/dyn_reconf/cohesion_factor')
         self.separation_factor = rospy.get_param('/dyn_reconf/separation_factor')
@@ -83,74 +95,63 @@ class Boid():
     # Radiusi za alignment i cohesion su isti i ne treba ih zadavati jer ionako
     # primamo samo susjede koji su u definiranom radijusu iz nekog vanjskog node
     def compute_alignment(self, nearest_agents):
+        """Return alignment component."""
         velocity = Vector2()
         for agent in nearest_agents:
             agent_velocity = get_agent_velocity(agent)
             velocity += agent_velocity
 
-        if nearest_agents:
-            velocity /= len(nearest_agents)
-            velocity.normalize()
+        velocity.normalize()
         return velocity
 
     def compute_cohesion(self, nearest_agents):
+        """Return cohesion component."""
         direction = Vector2()
         for agent in nearest_agents:
             agent_position = get_agent_position(agent)
             direction += agent_position
 
-        if nearest_agents:
-            direction /= len(nearest_agents)
-            direction.normalize()  # normalize vector (divide with its length)
+        direction.normalize()
         return direction
 
     # Radius za separation je manji
     def compute_separation(self, nearest_agents):
+        """Return separation component."""
         direction = Vector2()
         for agent in nearest_agents:
             agent_position = get_agent_position(agent)
             if agent_position.norm() < self.crowd_radius:
                 direction += agent_position
 
-        if nearest_agents:
-            direction /= len(nearest_agents)
-            direction *= -1  # negate the vector
-            direction.normalize()  # normalize vector (divide with its length)
+        direction *= -1
+        direction.normalize()
         return direction
 
-    # TODO: dodati izbjegavanje prepreka
     def compute_avoids(self, avoids):
+        """Return avoid component."""
         direction = Vector2()
         for obst in avoids:
             obst_position = get_obst_position(obst)
             direction += obst_position
 
-        if avoids:
-            direction /= len(avoids)
-            direction *= -1  # negate the vector
-            direction.normalize()  # normalize vector (divide with its length)
+        direction *= -1
+        direction.normalize()
         return direction
 
     def compute_velocity(self, nearest_agents, avoids):
+        """Compute total velocity based on all components."""
         self.update_parameters()
         alignment = self.compute_alignment(nearest_agents)
         cohesion = self.compute_cohesion(nearest_agents)
         separation = self.compute_separation(nearest_agents)
         avoid = self.compute_avoids(avoids)
-        # print(alignment)
-        # print(cohesion)
-        # print(separation)
-        # print
 
-        # print(self.velocity)
         self.velocity += alignment * self.alignment_factor
         self.velocity += cohesion * self.cohesion_factor
         self.velocity += separation * self.separation_factor
         self.velocity += avoid
         self.velocity.normalize()
         self.velocity *= self.max_speed
-        # print(self.velocity)
-        # print
 
         vel = Twist()
         vel.linear.x = self.velocity.x
