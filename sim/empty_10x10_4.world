@@ -54,7 +54,7 @@ floorplan
 	pose [ 0 0 0 0 ]
 )
 
-# throw in two robots
+# throw in robots
 sphero( pose [ 1 1 0 0.000 ] name "sphero_0" color "red")
 sphero( pose [ -1 1 0 0.000 ] name "sphero_1" color "blue")
 sphero( pose [ 1 -1 0 0.000 ] name "sphero_2" color "yellow")

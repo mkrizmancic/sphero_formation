@@ -1,31 +1,25 @@
 <launch>
-	<!-- Start Reynolds controller for each Sphero -->
-	<group ns="robot_0">
-		<node pkg="sphero_formation" type="reynolds_controller.py" name="con0" output="screen"/>
-	</group>
+	<!-- Set the arguments -->
+	<arg name="num" default="4"/> <!-- Number of robots -->
+	<arg name="map_name" default="empty_10x10"/> <!-- Name of the simulation map -->
 
-	<group ns="robot_1">
-		<node pkg="sphero_formation" type="reynolds_controller.py" name="con1"/>
-	</group>
+	<arg name="map_world" default="$(find sphero_formation)/sim/$(arg map_name)_$(arg num).world"/>
+	<arg name="map_yaml" default="$(find sphero_formation)/sim/$(arg map_name).yaml"/>
 
-	<group ns="robot_2">
-		<node pkg="sphero_formation" type="reynolds_controller.py" name="con2"/>
-	</group>
-
-	<group ns="robot_3">
-		<node pkg="sphero_formation" type="reynolds_controller.py" name="con3"/>
-	</group>
+	<!-- Include launch file with Reynolds controllers -->
+	<include file="$(find sphero_formation)/launch/$(arg num)_robots_sim.launch"/>
 
 	<!-- Start nearest_search node: search for other Spheros in range-->
-	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen"/>
+	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen">
+		<param name="num_of_robots" type="int" value="$(arg num)"/>
+	</node>
 
 	<!-- Start Stage simulator -->
-	<node pkg="stage_ros" type="stageros" name="simulator" args="$(find sphero_formation)/sim/empty_10x10.world"/>
+	<node pkg="stage_ros" type="stageros" name="simulator" args="$(arg map_world)"/>
 
 	<!-- Start simulation_tf node: provide tf transforms for simulation-->
 	<node pkg="sphero_formation" type="simulation_tf.py" name="tf_server"/>
 
 	<!-- Start map serever -->
-	<arg name="map_file" default="$(find sphero_formation)/sim/empty_10x10.yaml"/>
-	<node pkg="map_server" type="map_server" args="$(arg map_file)" name="map_server"/>
+	<node pkg="map_server" type="map_server" args="$(arg map_yaml)" name="map_server"/>
 </launch>

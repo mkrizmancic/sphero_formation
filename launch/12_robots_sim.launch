@@ -1,0 +1,50 @@
+<launch>
+	<!-- Start Reynolds controller for each Sphero -->
+	<group ns="robot_0">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con0" output="screen"/>
+	</group>
+
+	<group ns="robot_1">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con1"/>
+	</group>
+
+	<group ns="robot_2">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con2"/>
+	</group>
+
+	<group ns="robot_3">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con3"/>
+	</group>
+
+	<group ns="robot_4">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con4"/>
+	</group>
+
+	<group ns="robot_5">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con5"/>
+	</group>
+
+	<group ns="robot_6">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con6"/>
+	</group>
+
+	<group ns="robot_7">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con7"/>
+	</group>
+
+	<group ns="robot_8">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con8"/>
+	</group>
+
+	<group ns="robot_9">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con9"/>
+	</group>
+
+	<group ns="robot_10">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con10"/>
+	</group>
+
+	<group ns="robot_11">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="con11"/>
+	</group>
+</launch>

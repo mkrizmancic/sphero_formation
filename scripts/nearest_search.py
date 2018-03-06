@@ -93,7 +93,7 @@ class NearestSearch():
 
     def __init__(self):
         # TODO: Naci bolji nacin za ovo
-        self.num_agents = 4
+        self.num_agents = rospy.get_param("/search/num_of_robots")
 
         # Create a publisher for commands
         pub_keys = ['robot_{}'.format(i) for i in range(self.num_agents)]
