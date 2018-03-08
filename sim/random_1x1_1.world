@@ -1,0 +1,13 @@
+include "definitions.inc"
+
+# load an environment bitmap
+floorplan
+( 
+	name "random_1x1"
+	bitmap "random_1x1.bmp"
+	size [1 1 0.3]  # duzina sirina visina
+	pose [ 0 0 0 0 ]
+)
+
+# throw in robots
+sphero( pose [ 0.25 0.25 0 0.000 ] name "sphero_0" color "red")

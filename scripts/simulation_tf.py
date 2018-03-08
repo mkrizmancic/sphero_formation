@@ -38,6 +38,7 @@ if __name__ == '__main__':
     listener = tf2_ros.TransformListener(tfBuffer)
     broadcaster = tf2_ros.TransformBroadcaster()
 
-    [rospy.Subscriber("/robot_{}/odom".format(i), Odometry, callback) for i in range(4)]
+    num_of_robots = rospy.get_param("/search/num_of_robots")
+    [rospy.Subscriber("/robot_{}/odom".format(i), Odometry, callback) for i in range(num_of_robots)]
 
     rospy.spin()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import rospy
 import math
 from copy import deepcopy
@@ -81,12 +81,15 @@ class NearestSearch():
             y_range = range(max(0, y0 - r / 2), min(self.map_width, y0 + r / 2))
             for i in x_range:
                 for j in y_range:
+                    print(self.map[i * self.map_width + j], end=' ')
                     if self.map[i * self.map_width + j] == 100:
                         x, y = self.index_to_pos(i, j)
                         obst = Pose()
                         obst.position.x = x - agent_position.x
                         obst.position.y = y - agent_position.y
                         avoids.poses.append(obst)
+                print()
+            print()
 
             # Publish the wall and obstacle positions message
             self.avoid[key].publish(avoids)

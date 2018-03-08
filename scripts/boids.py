@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import math
 import rospy
 from geometry_msgs.msg import Twist
@@ -127,11 +129,25 @@ class Boid():
         direction.normalize()
         return direction
 
+    def compute_colision(self, nearest_agents):
+        """Return colision component."""
+        direction = Vector2()
+        for agent in nearest_agents:
+            agent_position = get_agent_position(agent)
+            if agent_position.norm() < 0.3:
+                direction += agent_position
+
+        direction *= -1
+        direction.normalize()
+        return direction
+
     def compute_avoids(self, avoids):
         """Return avoid component."""
+        print (len(avoids))
         direction = Vector2()
         for obst in avoids:
             obst_position = get_obst_position(obst)
+            # print (obst_position, end=' ')
             direction += obst_position
 
         direction *= -1
@@ -145,10 +161,12 @@ class Boid():
         cohesion = self.compute_cohesion(nearest_agents)
         separation = self.compute_separation(nearest_agents)
         avoid = self.compute_avoids(avoids)
+        # colision = self.compute_colision(nearest_agents)
 
         self.velocity += alignment * self.alignment_factor
         self.velocity += cohesion * self.cohesion_factor
         self.velocity += separation * self.separation_factor
+        self.velocity.normalize()
         self.velocity += avoid
         self.velocity.normalize()
         self.velocity *= self.max_speed
