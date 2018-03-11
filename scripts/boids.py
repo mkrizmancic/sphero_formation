@@ -143,7 +143,6 @@ class Boid():
 
     def compute_avoids(self, avoids):
         """Return avoid component."""
-        print (len(avoids))
         direction = Vector2()
         for obst in avoids:
             obst_position = get_obst_position(obst)

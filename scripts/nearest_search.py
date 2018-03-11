@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
 import rospy
 import math
 from copy import deepcopy
@@ -17,22 +16,26 @@ def get_distance(a, b):
 class NearestSearch():
     def map_callback(self, data):
         """Save map metadata in class variables."""
-        self.map = data.data
+        self.map = []
         self.map_width = data.info.width
         self.map_height = data.info.height
         self.map_resolution = data.info.resolution
         self.map_origin = data.info.origin.position
 
+        # Reverse the order of rows in map
+        for i in range(self.map_height - 1, -1, -1):
+            self.map.append(data.data[i * self.map_width:(i + 1) * self.map_width])
+
     def pos_to_index(self, x_real, y_real):
         """Return list indexes for given real position coordinates."""
-        x_ind = (x_real + self.map_origin.x) / self.map_resolution
-        y_ind = (y_real - self.map_origin.y) / self.map_resolution
-        return int(x_ind), int(y_ind)
+        col = (x_real - self.map_origin.x) / self.map_resolution
+        row = -(y_real + self.map_origin.y) / self.map_resolution
+        return int(col), int(row)
 
-    def index_to_pos(self, x_ind, y_ind):
+    def index_to_pos(self, row, col):
         """Return real position coordinates for list indexes."""
-        x_real = x_ind * self.map_resolution - self.map_origin.x
-        y_real = y_ind * self.map_resolution + self.map_origin.y
+        x_real = col * self.map_resolution + self.map_origin.x
+        y_real = -(row * self.map_resolution + self.map_origin.y)
         return x_real, y_real
 
     def robot_callback(self, *data):
@@ -76,20 +79,17 @@ class NearestSearch():
             # this list in form of an index pair. Then search the list in
             # in specified search radius and return actual positions of walls
             # other obstcles.
-            x0, y0 = self.pos_to_index(agent_position.x, agent_position.y)
-            x_range = range(max(0, x0 - r / 2), min(self.map_height, x0 + r / 2))
-            y_range = range(max(0, y0 - r / 2), min(self.map_width, y0 + r / 2))
-            for i in x_range:
-                for j in y_range:
-                    print(self.map[i * self.map_width + j], end=' ')
-                    if self.map[i * self.map_width + j] == 100:
-                        x, y = self.index_to_pos(i, j)
+            col, row = self.pos_to_index(agent_position.x, agent_position.y)
+            col_range = range(max(0, col - r), min(self.map_width, col + r + 1))
+            row_range = range(max(0, row - r), min(self.map_height, row + r + 1))
+            for row in row_range:
+                for col in col_range:
+                    if self.map[row][col] == 100:
+                        x, y = self.index_to_pos(row, col)
                         obst = Pose()
                         obst.position.x = x - agent_position.x
                         obst.position.y = y - agent_position.y
                         avoids.poses.append(obst)
-                print()
-            print()
 
             # Publish the wall and obstacle positions message
             self.avoid[key].publish(avoids)
