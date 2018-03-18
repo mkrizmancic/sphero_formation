@@ -3,17 +3,17 @@ include "definitions.inc"
 # load an environment bitmap
 floorplan
 ( 
-	name "empty_10x10"
-	bitmap "empty_10x10.bmp"
-	size [10 10 1]  # duzina sirina visina
+	name "empty_3x3"
+	bitmap "empty_3x3.bmp"
+	size [3 3 1]  # duzina sirina visina
 	pose [ 0 0 0 0 ]
 )
 
 # throw in robots
-sphero( pose [ 0.5 0.5 0 0.000 ] name "sphero_0" color "red")
+sphero( pose [ 0 0 0 0.000 ] name "sphero_0" color "red")
 sphero( pose [ -0.5 0.5 0 0.000 ] name "sphero_1" color "blue")
 sphero( pose [ 0.5 -0.5 0 0.000 ] name "sphero_2" color "blue")
 sphero( pose [ -0.5 -0.5 0 0.000 ] name "sphero_3" color "blue")
-sphero( pose [ 0 0 0 0.000 ] name "sphero_4" color "blue")
+sphero( pose [ 0.5 0.5 0 0.000 ] name "sphero_4" color "blue")
 sphero( pose [ 0 0.6 0 0.000 ] name "sphero_5" color "blue")
 sphero( pose [ 0 -0.6 0 0.000 ] name "sphero_6" color "blue")

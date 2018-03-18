@@ -1,27 +1,33 @@
 #!/usr/bin/env python
+"""TODO: MISSING DOCSTRING!"""
 
 import rospy
-from geometry_msgs.msg import Twist, PoseArray
-from sphero_formation.msg import OdometryArray
 import message_filters as mf
+from geometry_msgs.msg import Twist, PoseArray
 from boids import Boid
+from sphero_formation.msg import OdometryArray
 
 
 class ReynoldsController():
+    """TODO: MISSING DOCSTRING!"""
 
     def callback(self, *data):
-        self.cmd_vel = self.agent.compute_velocity(data[0].array, data[1].poses)
+        """TODO: MISSING DOCSTRING!"""
+        my_agent = data[0].array[0]
+        nearest_agents = data[0].array[1:]
+        obstacles = data[1].poses
+
+        # Compute agent's velocity and publish the command
+        cmd_vel = self.agent.compute_velocity(my_agent, nearest_agents, obstacles)
+        self.pub.publish(cmd_vel)
 
     def __init__(self):
+        """TODO: MISSING DOCSTRING!"""
 
         # Create a publisher for commands
-        pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
-
-        # Set the message to publish as command
-        self.cmd_vel = Twist()
+        self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 
         # Create a subscriber
-        # rospy.Subscriber("nearest", OdometryArray, self.callback, queue_size=1)
         subs = [mf.Subscriber("nearest", OdometryArray), mf.Subscriber("avoid", PoseArray)]
         self.ts = mf.TimeSynchronizer(subs, 10)
         self.ts.registerCallback(self.callback)
@@ -30,10 +36,8 @@ class ReynoldsController():
         self.agent = Boid()
 
         # Main while loop.
-        rate = rospy.Rate(100)
+        rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            # Publish our command
-            pub.publish(self.cmd_vel)
             rate.sleep()
 
 

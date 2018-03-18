@@ -16,6 +16,7 @@ define sphero position
 	drive "omni"
 	localization "gps"
 	localization_origin [0 0 0 0]
+	update_interval  100 # update timestep in milliseconds
 )
 
 define floorplan model
@@ -34,7 +35,7 @@ define floorplan model
 # set the resolution of the underlying raytrace model in meters
 resolution 0.01
 
-interval_sim 10  # simulation timestep in milliseconds
+interval_sim 100  # simulation timestep in milliseconds
 
 
 window
@@ -42,5 +43,5 @@ window
 	size [ 960.000 540.000 ] 
 
 	rotate [ 0.000 0 ]
-	scale 50
+	scale 100
 )

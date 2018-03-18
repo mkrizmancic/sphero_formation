@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-import rospy
+"""TODO: MISSING DOCSTRING!"""
 import math
 from copy import deepcopy
+import rospy
 import message_filters as mf
 from geometry_msgs.msg import PoseArray, Pose
 from nav_msgs.msg import Odometry, OccupancyGrid
@@ -14,8 +15,10 @@ def get_distance(a, b):
 
 
 class NearestSearch():
+    """TODO: MISSING DOCSTRING!"""
+
     def map_callback(self, data):
-        """Save map metadata in class variables."""
+        """Save map occupancy grid and  metadata in class variables."""
         self.map = []
         self.map_width = data.info.width
         self.map_height = data.info.height
@@ -27,13 +30,13 @@ class NearestSearch():
             self.map.append(data.data[i * self.map_width:(i + 1) * self.map_width])
 
     def pos_to_index(self, x_real, y_real):
-        """Return list indexes for given real position coordinates."""
+        """Return list (map) indices for given real position coordinates."""
         col = (x_real - self.map_origin.x) / self.map_resolution
         row = -(y_real + self.map_origin.y) / self.map_resolution
         return int(col), int(row)
 
     def index_to_pos(self, row, col):
-        """Return real position coordinates for list indexes."""
+        """Return real position coordinates for list (map) indices."""
         x_real = col * self.map_resolution + self.map_origin.x
         y_real = -(row * self.map_resolution + self.map_origin.y)
         return x_real, y_real
@@ -54,9 +57,12 @@ class NearestSearch():
             nearest_agents = OdometryArray()
             nearest_agents.header.stamp = time
 
-            # For all agents calculate the distance from the observed agent
-            # If the distance is within specified, add the agent to the
-            # publishing message
+            # Append odometry data from observed agent to the publishing message
+            nearest_agents.array.append(deepcopy(agent))
+
+            # For all other agents calculate the distance from the observed
+            # agent and if the distance is within specified, add the agent to
+            # the publishing message
             for agent2 in data:
                 friend_position = agent2.pose.pose.position
                 distance = get_distance(agent_position, friend_position)
@@ -74,11 +80,11 @@ class NearestSearch():
             avoids = PoseArray()
             avoids.header.stamp = time
 
-            # Positions of walls and obstacles are represented as value 100 in a
-            # list `self.map`. First, find the position of the observed agent in
-            # this list in form of an index pair. Then search the list in
-            # in specified search radius and return actual positions of walls
-            # other obstcles.
+            # Positions of walls and obstacles are represented as value 100 in
+            # the list `self.map`. First, find the position of the observed
+            # agent in this list in form of an index pair. Then search the list
+            # in in specified search radius and return actual positions of the
+            # walls and other obstcles.
             col, row = self.pos_to_index(agent_position.x, agent_position.y)
             col_range = range(max(0, col - r), min(self.map_width, col + r + 1))
             row_range = range(max(0, row - r), min(self.map_height, row + r + 1))
@@ -95,10 +101,12 @@ class NearestSearch():
             self.avoid[key].publish(avoids)
 
     def __init__(self):
-        # TODO: Naci bolji nacin za ovo
+        """TODO: MISSING DOCSTRING!"""
+
+        # Get the number of agents
         self.num_agents = rospy.get_param("/search/num_of_robots")
 
-        # Create a publisher for commands
+        # Create publishers for commands
         pub_keys = ['robot_{}'.format(i) for i in range(self.num_agents)]
 
         # Publisher for locations of nearest agents
@@ -111,7 +119,7 @@ class NearestSearch():
         for key in self.avoid.keys():
             self.avoid[key] = rospy.Publisher('/' + key + '/avoid', PoseArray, queue_size=1)
 
-        # Create a subscriber
+        # Create subscribers
         subs = [mf.Subscriber("/robot_{}/odom".format(i), Odometry) for i in range(self.num_agents)]
         self.ts = mf.TimeSynchronizer(subs, 10)
         self.ts.registerCallback(self.robot_callback)
