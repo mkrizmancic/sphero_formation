@@ -1,10 +1,15 @@
 <launch>
-	<!-- Start Sphero node: driver for sphero -->
-	<node pkg="sphero_ros" type="sphero.py" name="sphero" output="screen"/>
+	<!-- Set the arguments -->
+	<arg name="num" default="4"/>  <!-- Number of robots -->
+	<arg name="map_name" default="empty_10x10"/>  <!-- Name of the simulation map -->
+
+	<arg name="map_world" default="$(find sphero_formation)/sim/$(arg map_name)_$(arg num).world"/>
 
 	<!-- Start controller node: provide inputs for controling the sphero -->
 	<node pkg="sphero_formation" type="man_control.py" name="manual">
 		<remap from="joystick_input" to="joy"/>
+		<remap from="cmd_vel" to="/robot_0/cmd_vel"/>
+		<param name="sensitivity" value="0.2"/>
 	</node>
 
 	<!-- Start Joy node: user control with joystick -->
@@ -13,4 +18,7 @@
 		<param name="dev" type="string" value="/dev/input/js1" />
 		<param name="deadzone" value="0"/>
 	</node>
+
+	<!-- Start Stage simulator -->
+	<node pkg="stage_ros" type="stageros" name="simulator" args="$(arg map_world)"/>
 </launch>

@@ -1,8 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from __future__ import print_function
 
-import math
 import rospy
 from geometry_msgs.msg import Twist
+from util.py import Vector2
 
 DEBUG = False
 
@@ -31,85 +34,45 @@ def get_obst_position(obst):
     return pos
 
 
-class Vector2():
-    """
-    2D vector class representation with x and y components.
-
-    Supports simple addition, substraction, multiplication, division and
-    normalization, as well as getting norm and angle of the vector and
-    setting limit and magnitude.
-    """
-
-    def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
-
-    def __add__(self, other):
-        if isinstance(other, self.__class__):
-            return Vector2(self.x + other.x, self.y + other.y)
-        elif isinstance(other, int) or isinstance(other, float):
-            return Vector2(self.x + other, self.y + other)
-
-    def __sub__(self, other):
-        if isinstance(other, self.__class__):
-            return Vector2(self.x - other.x, self.y - other.y)
-        elif isinstance(other, int) or isinstance(other, float):
-            return Vector2(self.x - other, self.y - other)
-
-    def __div__(self, other):
-        if isinstance(other, self.__class__):
-            raise ValueError("Cannot divide two vectors!")
-        elif isinstance(other, int) or isinstance(other, float):
-            if other != 0:
-                return Vector2(self.x / other, self.y / other)
-            else:
-                return Vector2()
-
-    def __mul__(self, other):
-        if isinstance(other, self.__class__):
-            raise NotImplementedError("Multiplying vectors is not implemented!")
-        elif isinstance(other, int) or isinstance(other, float):
-            return Vector2(self.x * other, self.y * other)
-
-    def __rmul__(self, other):
-        return self.__mul__(other)
-
-    def __repr__(self):
-        return "({: 6.1f}, {: .5f})".format(self.arg(), self.norm())
-        # return "({: .3f}, {: .3f})".format(self.x, self.y)
-
-    def norm(self):
-        """Return the norm of the vector."""
-        return math.sqrt(pow(self.x, 2) + pow(self.y, 2))
-
-    def arg(self):
-        """Return the angle of the vector."""
-        return math.degrees(math.atan2(self.y, self.x))
-
-    def normalize(self, ret=False):
-        """Normalize the vector."""
-        d = self.norm()
-        if d:
-            if not ret:
-                self.x /= d
-                self.y /= d
-            else:
-                return Vector2(self.x / d, self.y / d)
-
-    def limit(self, value):
-        """Limit vector's maximum magnitude to given value."""
-        if self.norm() > value:
-            self.setMag(value)
-
-    def setMag(self, value):
-        """Set vector's magnitude without changing direction."""
-        self.normalize()
-        self.x *= value
-        self.y *= value
-
-
 class Boid():
-    """TODO: MISSING DOCSTRING!"""
+    """
+    An implementation of Craig Reynolds' flocking rules and boid objects.
+
+    Each boid (bird-oid object) maneuvers based on the positions and velocities
+    of its nearby flockmates. Computation is based on three components:
+    1) alignment: steer towards the average heading of local flockmates
+    2) cohesion: steer to move toward the average position of local flockmates
+    3) separation: steer to avoid crowding local flockmates.
+    Additionally, 4th component, avoid, is implemented where boids steer away
+    from obstacles in their search radius.
+
+    Each component yields a force on boid. Total force then gives the
+    acceleration which is multiplied by time and added to boid's velocity.
+    Force and velocity are limited to specified amount.
+
+    Attributes:
+        position (Vector2): Boid's position
+        velocity (Vector2): Boid's velocity
+        mass (Vector2): Boid's mass
+        alignment_factor (double): Weight for alignment component
+        cohesion_factor (double): Weight for cohesion component
+        separation_factor (double): Weight for separation component
+        avoid_factor (double): Weight for obstacle avoiding component
+        max_speed (double): Velocity upper limit
+        max_force (double): Force upper limit
+        friction (double): Constant friction force
+        crowd_radius (double): Radius to avoid crowding
+        search_radius (double): Boid's sensing radius
+
+    Methods:
+        update_parameters(self): Save parameters in class variables
+        compute_alignment(self, nearest_agents): Return alignment component
+        compute_cohesion(self, nearest_agents): Return cohesion component
+        compute_separation(self, nearest_agents): Return separation component
+        compute_avoids(self, avoids): Return avoid component
+        compute_velocity(self, my_agent, nearest_agents, avoids):
+            Compute total velocity based on all components
+    """
 
     def __init__(self):
         """Create an empty boid and update parameters."""
@@ -119,7 +82,7 @@ class Boid():
         self.mass = 0.18  # Mass of Sphero robot in kilograms
 
     def update_parameters(self):
-        """Save Reynolds controller parametars in class variables."""
+        """Save Reynolds controller parameters in class variables."""
         self.alignment_factor = rospy.get_param('/dyn_reconf/alignment_factor')
         self.cohesion_factor = rospy.get_param('/dyn_reconf/cohesion_factor')
         self.separation_factor = rospy.get_param('/dyn_reconf/separation_factor')
@@ -130,16 +93,30 @@ class Boid():
         self.crowd_radius = rospy.get_param('/dyn_reconf/crowd_radius')
         self.search_radius = rospy.get_param('/dyn_reconf/search_radius')
 
+        rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
+        if DEBUG:
+            print('alignment_factor:  ', self.alignment_factor)
+            print('cohesion_factor:  ', self.cohesion_factor)
+            print('separation_factor:  ', self.separation_factor)
+            print('avoid_factor:  ', self.avoid_factor)
+            print('max_speed:  ', self.max_speed)
+            print('max_force:  ', self.max_force)
+            print('friction:  ', self.friction)
+            print('crowd_radius:  ', self.crowd_radius)
+            print('search_radius:  ', self.search_radius)
+
     def compute_alignment(self, nearest_agents):
         """Return alignment component."""
         mean_velocity = Vector2()
         steer = Vector2()
+        # Find mean velocity of neighboring agents
         for agent in nearest_agents:
             agent_velocity = get_agent_velocity(agent)
             mean_velocity += agent_velocity
 
+        # Steer toward calculated mean velocity
         if nearest_agents:
-            mean_velocity.setMag(self.max_speed)
+            mean_velocity.set_mag(self.max_speed)
             steer = mean_velocity - self.velocity
             steer.limit(self.max_force)
         return steer
@@ -148,14 +125,17 @@ class Boid():
         """Return cohesion component."""
         mean_position = Vector2()
         steer = Vector2()
+        # Find mean position of neighboring agents
         for agent in nearest_agents:
             agent_position = get_agent_position(agent)
             mean_position += agent_position
         direction = mean_position / len(nearest_agents)
 
+        # Steer toward calculated mean position
+        # Force is proportional to agents distance from mean
         d = direction.norm()
         if d > 0:
-            direction.setMag(self.max_speed * (d / self.search_radius))
+            direction.set_mag(self.max_speed * (d / self.search_radius))
             steer = direction - self.velocity
             steer.limit(self.max_force)
         return steer
@@ -165,6 +145,7 @@ class Boid():
         direction = Vector2()
         steer = Vector2()
         count = 0
+        # Find mean position of neighboring agents
         for agent in nearest_agents:
             agent_position = get_agent_position(agent)
             if agent_position.norm() < self.crowd_radius:
@@ -176,8 +157,9 @@ class Boid():
                 agent_position /= d
                 direction += agent_position
 
+        # Steer away from calculated mean position
         if count:
-            direction.setMag(self.max_speed)
+            direction.set_mag(self.max_speed)
             steer = direction - self.velocity
             steer.limit(self.max_force)
         return steer
@@ -186,17 +168,19 @@ class Boid():
         """Return avoid component."""
         direction = Vector2()
         steer = Vector2()
-        d = 10000000
+        # Find mean position of obstacles
         for obst in avoids:
             obst_position = get_obst_position(obst)
-            d = min(d, obst_position.norm())
-            obst_position *= -1
-            obst_position.normalize()
+            d = obst_position.norm()
+            obst_position *= -1  # Make vector point away from obstacle
+            obst_position.normalize()  # Normalize to get only direction
+            # Vector's magnitude is reciprocal to distance between agents
             obst_position /= d
             direction += obst_position
 
+        # Steer away from calculated mean position
         if avoids:
-            direction.setMag(self.max_speed)
+            direction.set_mag(self.max_speed)
             steer = direction - self.velocity
             steer.limit(self.max_force)
         return steer
@@ -205,9 +189,6 @@ class Boid():
         """Compute total velocity based on all components."""
         force = Vector2()
         self.velocity = get_agent_velocity(my_agent)
-
-        # Update all dynamic parameters
-        self.update_parameters()
 
         # Compute all the components
         alignment = self.compute_alignment(nearest_agents)
@@ -221,7 +202,7 @@ class Boid():
             print("separation:   ", separation)
             print("avoid:        ", avoid)
 
-        # Add componets together and limit the output
+        # Add components together and limit the output
         force += alignment * self.alignment_factor
         force += cohesion * self.cohesion_factor
         force += separation * self.separation_factor

@@ -1,5 +1,7 @@
 <launch>
+	<!-- Start rqt_reconfigure GUI -->
 	<node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
 
+	<!-- Start dynamic reconfigure node -->
 	<node pkg="sphero_formation" type="dynamic_reconfigure_node.py" name="dyn_reconf" output="screen"/>
 </launch>

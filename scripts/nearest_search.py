@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-"""TODO: MISSING DOCSTRING!"""
+# -*- coding: utf-8 -*-
+
 import math
-from copy import deepcopy
 import rospy
 import message_filters as mf
+from copy import deepcopy
 from geometry_msgs.msg import PoseArray, Pose
 from nav_msgs.msg import Odometry, OccupancyGrid
 from sphero_formation.msg import OdometryArray
@@ -15,10 +16,20 @@ def get_distance(a, b):
 
 
 class NearestSearch():
-    """TODO: MISSING DOCSTRING!"""
+    """
+    Node that provides information about nearest flockmates and obstacles.
+
+    Generally, Reynolds' flocking algorithm works on distributed systems.
+    If agents don't have any sensors, a centralized system is needed. This node
+    is an 'all-knowing' hub that makes virtual distributed system possible.
+    It is subscribed to messages with position and velocity of each agent and
+    knows the map layout. For each agent, it finds its neighbors within search
+    radius and calculates their relative position. This data is then published
+    to individual agents along side the list of obstacles within range.
+    """
 
     def map_callback(self, data):
-        """Save map occupancy grid and  metadata in class variables."""
+        """Save map occupancy grid and meta-data in class variables."""
         self.map = []
         self.map_width = data.info.width
         self.map_height = data.info.height
@@ -84,7 +95,7 @@ class NearestSearch():
             # the list `self.map`. First, find the position of the observed
             # agent in this list in form of an index pair. Then search the list
             # in in specified search radius and return actual positions of the
-            # walls and other obstcles.
+            # walls and other obstacles.
             col, row = self.pos_to_index(agent_position.x, agent_position.y)
             col_range = range(max(0, col - r), min(self.map_width, col + r + 1))
             row_range = range(max(0, row - r), min(self.map_height, row + r + 1))
@@ -101,7 +112,7 @@ class NearestSearch():
             self.avoid[key].publish(avoids)
 
     def __init__(self):
-        """TODO: MISSING DOCSTRING!"""
+        """Create subscribers and publishers."""
 
         # Get the number of agents
         self.num_agents = rospy.get_param("/search/num_of_robots")
