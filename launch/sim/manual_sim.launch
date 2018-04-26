@@ -6,10 +6,10 @@
 	<arg name="map_world" default="$(find sphero_formation)/sim/$(arg map_name)_$(arg num).world"/>
 
 	<!-- Start controller node: provide inputs for controling the sphero -->
-	<node pkg="sphero_formation" type="man_control.py" name="manual">
+	<node pkg="sphero_formation" type="man_control.py" name="manual" output="screen">
 		<remap from="joystick_input" to="joy"/>
 		<remap from="cmd_vel" to="/robot_0/cmd_vel"/>
-		<param name="sensitivity" value="0.2"/>
+		<param name="sensitivity" value="1"/>
 	</node>
 
 	<!-- Start Joy node: user control with joystick -->

@@ -4,7 +4,7 @@
 import rospy
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, ColorRGBA
 import math
 
 
@@ -13,14 +13,25 @@ class ManControlNode():
         """Receive inputs from joystick and convert them to control signals."""
 
         # Sphero driver prima vrijednosti brzine u rasponu 0-255
-        self.cmd_vel.linear.x = int(data.axes[1] / 32767.0 * 255 * self.sensitivity)
-        self.cmd_vel.linear.y = int(data.axes[0] / 32767.0 * 255 * self.sensitivity)
+        self.cmd_vel.linear.x = int(data.axes[1] * 255 * self.sensitivity)
+        self.cmd_vel.linear.y = int(data.axes[0] * 255 * self.sensitivity)
+        print (rospy.get_name() + "  cmd_vel: ", self.cmd_vel)
 
-        if data.buttons[0] == 1:
+        # Back LED: blue button X
+        if data.buttons[0]:
             self.pub_b_led.publish(1.0)  # 0.0 - 1.0
-        elif data.buttons[2] == 1:
+        else:
             self.pub_b_led.publish(0.0)  # 0.0 - 1.0
 
+        # RGB LED colors
+        if data.buttons[1]:  # green: green button A
+            self.pub_rgb_led(0.0, 255.0, 0.0, 1.0)
+        elif data.buttons[2]:  # red: red button B
+            self.pub_rgb_led(255.0, 0.0, 0.0, 1.0)
+        elif data.buttons[3]:  # yellow: yellow button Y
+            self.pub_rgb_led(255.0, 255.0, 0.0, 1.0)
+
+        # Hold L1 and select heading using right stick
         if data.buttons[4] == 1:
             # Calculate heading, convert to degrees and wrap to [0, 359]
             self.heading = (math.degrees(math.atan2(data.axes[2], data.axes[3])) + 180) % 360
@@ -28,15 +39,16 @@ class ManControlNode():
 
     def __init__(self):
         # Create a publisher for commands
-        self.pub_vel = rospy.Publisher('cmd_vel', Twist, queue_size=1)
-        self.pub_hdg = rospy.Publisher('set_heading', Float32, queue_size=1)
-        self.pub_b_led = rospy.Publisher('set_back_led', Float32, queue_size=1)
+        self.pub_vel = rospy.Publisher('cmd_vel_', Twist, queue_size=1)
+        self.pub_hdg = rospy.Publisher('set_heading_', Float32, queue_size=1)
+        self.pub_b_led = rospy.Publisher('set_back_led_', Float32, queue_size=1)
+        self.pub_rgb_led = rospy.Publisher('set_color_', ColorRGBA, queue_size=1)
 
         # Set class variables
         self.sensitivity = rospy.get_param('~sensitivity', 0.2)
 
         # Create a subscriber
-        rospy.Subscriber("joystick_input", Joy, self.joystick_callback, queue_size=1)
+        rospy.Subscriber("/joystick_input", Joy, self.joystick_callback, queue_size=1)
 
         # Initialize messages
         self.cmd_vel = Twist()

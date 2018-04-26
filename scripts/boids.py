@@ -5,7 +5,7 @@ from __future__ import print_function
 
 import rospy
 from geometry_msgs.msg import Twist
-from util.py import Vector2
+from util import Vector2
 
 DEBUG = False
 
