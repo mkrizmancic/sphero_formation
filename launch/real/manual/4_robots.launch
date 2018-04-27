@@ -2,7 +2,7 @@
 
 	<arg name="adr0" default="E6:CD:44:A7:EF:7D"/>
 	<arg name="adr1" default="FB:28:2C:0B:75:19"/>
-	<arg name="adr2" default="C4:5F:2C:3B:96:A6"/>
+	<arg name="adr2" default="E9:C8:1D:54:E4:31"/>
 	<arg name="adr3" default="E2:6A:A9:2C:64:3D"/>
 
     <!-- Start Joy node: user control with joystick -->

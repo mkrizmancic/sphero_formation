@@ -30,6 +30,10 @@ class ManControlNode():
             self.pub_rgb_led.publish(255.0, 0.0, 0.0, 1.0)
         elif data.buttons[3]:  # yellow: yellow button Y
             self.pub_rgb_led.publish(255.0, 255.0, 0.0, 1.0)
+        elif data.buttons[9]:  # white: start button
+            self.pub_rgb_led.publish(255.0, 255.0, 255.0, 1.0)
+        elif data.buttons[8]:  # black: end button
+            self.pub_rgb_led.publish(0.0, 0.0, 0.0, 1.0)
 
         # Hold L1 and select heading using right stick
         if data.buttons[4] == 1:
@@ -37,9 +41,9 @@ class ManControlNode():
             self.heading = (math.degrees(math.atan2(data.axes[2], data.axes[3])) + 180) % 360
             self.pub_hdg.publish(self.heading)
 
-        if data.buttons[5] == 1:
+        if data.buttons[5]:
             self.pub_stab.publish(1) # disable stabilization
-        elif data.buttons[7] == 1:
+        elif data.buttons[7]:
             self.pub_stab.publish(0) # enable stabilization
 
     def __init__(self):
