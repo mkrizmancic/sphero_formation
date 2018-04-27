@@ -1,0 +1,22 @@
+<launch>
+
+	<arg name="adr0" default="E6:CD:44:A7:EF:7D"/>
+
+    <!-- Start Joy node: user control with joystick -->
+	<node pkg="joy" type="joy_node" name="JoyInput">
+		<!-- REPLACE value WITH THE RIGHT JOYSTICK IDENTIFIERˇˇˇ-->
+		<param name="dev" type="string" value="/dev/input/js0"/>
+		<param name="deadzone" value="0"/>
+	</node>
+
+	<group ns="sphero_0">
+		<node pkg="sphero_formation" type="man_control.py" name="manual" output="screen">
+			<remap from="/joystick_input" to="/joy"/>
+			<param name="sensitivity" value="0.2"/>
+		</node>
+
+		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen" >
+			<param name="adresa" type="str" value="$(arg adr0)"/>
+		</node>
+	</group>
+</launch>
