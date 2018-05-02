@@ -2,13 +2,20 @@
 
 	<arg name="adr0" default="E6:CD:44:A7:EF:7D"/>
 	<arg name="adr1" default="FB:28:2C:0B:75:19"/>
-	<arg name="adr2" default="DD:4E:63:F6:8F:DA"/>
-	<arg name="adr3" default=""/>
+	<arg name="adr2" default="E9:C8:1D:54:E4:31"/>
+	<arg name="adr3" default="E2:6A:A9:2C:64:3D"/>
+
+    <!-- Start Joy node: user control with joystick -->
+	<node pkg="joy" type="joy_node" name="JoyInput">
+		<!-- REPLACE value WITH THE RIGHT JOYSTICK IDENTIFIERˇˇˇ-->
+		<param name="dev" type="string" value="/dev/input/js0"/>
+		<param name="deadzone" value="0"/>
+	</node>
 
 	<group ns="sphero_0">
 		<node pkg="sphero_formation" type="man_control.py" name="manual" output="screen">
 			<remap from="/joystick_input" to="/joy"/>
-			<param name="sensitivity" value="1"/>
+			<param name="sensitivity" value="0.2"/>
 		</node>
 
 		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen" >
@@ -17,34 +24,34 @@
 	</group>
 
 	<group ns="sphero_1">
-		<node pkg="sphero_formation" type="man_control.py" name="manual" output="screen">
+		<node pkg="sphero_formation" type="man_control.py" name="manual">
 			<remap from="/joystick_input" to="/joy"/>
-			<param name="sensitivity" value="1"/>
+			<param name="sensitivity" value="0.2"/>
 		</node>
 
-		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen" >
+		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen">
 			<param name="adresa" type="str" value="$(arg adr1)"/>
 		</node>
 	</group>
 
 	<group ns="sphero_2">
-		<node pkg="sphero_formation" type="man_control.py" name="manual" output="screen">
+		<node pkg="sphero_formation" type="man_control.py" name="manual">
 			<remap from="/joystick_input" to="/joy"/>
-			<param name="sensitivity" value="1"/>
+			<param name="sensitivity" value="0.2"/>
 		</node>
 
-		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen" >
+		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen">
 			<param name="adresa" type="str" value="$(arg adr2)"/>
 		</node>
 	</group>
 
 	<group ns="sphero_3">
-		<node pkg="sphero_formation" type="man_control.py" name="manual" output="screen">
+		<node pkg="sphero_formation" type="man_control.py" name="manual">
 			<remap from="/joystick_input" to="/joy"/>
-			<param name="sensitivity" value="1"/>
+			<param name="sensitivity" value="0.2"/>
 		</node>
 
-		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen" >
+		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen">
 			<param name="adresa" type="str" value="$(arg adr3)"/>
 		</node>
 	</group>
