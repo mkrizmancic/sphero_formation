@@ -104,3 +104,12 @@ class Vector2():
         self.normalize()
         self.x *= value
         self.y *= value
+
+
+def pose_dist(pose1, pose2):
+    x1 = pose1.position.x
+    y1 = pose1.position.y
+    x2 = pose2.position.x
+    y2 = pose2.position.y
+
+    return math.sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2))
