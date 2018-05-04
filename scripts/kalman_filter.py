@@ -12,23 +12,22 @@ import tf
 
 class KalmanFilterNode():
     def get_initial_position(self):
-        rospy.wait_for_service('return_initials')
+        rospy.wait_for_service('/return_initials')
         try:
-            get_initials = rospy.ServiceProxy('return_initials', ReturnInitials)
+            get_initials = rospy.ServiceProxy('/return_initials', ReturnInitials)
             response = get_initials(rospy.get_namespace())
             return response.initial
         except rospy.ServiceException, e:
-            rospy.logerror("Service call failed: %s", e)
+            rospy.logerr("Service call failed: %s", e)
 
     def associate(self, data):
         Xm = None
         found = False
         for pose in data.poses:
-            if pose_dist(self.X_est.pose.pose, pose) < self.sphero_radius:
-                print pose
+            if pose_dist(self.X_est.pose.pose, pose) < 2*self.sphero_radius:
                 Xm = pose
                 if found:
-                    rospy.logwarn(rospy.get_name() + "Multiple markers found for one sphero")
+                    rospy.logwarn("Multiple markers found for " + rospy.get_name())
                 found = True
 
         return Xm
@@ -54,6 +53,8 @@ class KalmanFilterNode():
         self.Xm = Pose()
         self.sphero_radius = 0.075
         initial_pos = self.get_initial_position()
+        print rospy.get_namespace()
+        print initial_pos.position, '\n'
         self.filter = KalmanFilter(initial_pos, Twist())
         self.X_est = Odometry()
         self.X_est.pose.pose = initial_pos
@@ -63,7 +64,7 @@ class KalmanFilterNode():
         rospy.Subscriber('/mocap_node/locations', PoseArray, self.sensor_callback, queue_size=1)
 
         # Create tf broadcaster
-        br = tf.TransformBradcaster()
+        br = tf.TransformBroadcaster()
 
         # Main while loop.
         rate = rospy.Rate(10)
