@@ -34,10 +34,10 @@ class KalmanFilter():
         time = rospy.Time.now()
         msg = Odometry()
         msg.header.stamp = time
-        msg.pose.pose.position.x = np_state[0]
-        msg.pose.pose.position.y = np_state[1]
-        msg.twist.twist.linear.x = np_state[2]
-        msg.twist.twist.linear.y = np_state[3]
+        msg.pose.pose.position.x = np_state[0][0]
+        msg.pose.pose.position.y = np_state[1][0]
+        msg.twist.twist.linear.x = np_state[2][0]
+        msg.twist.twist.linear.y = np_state[3][0]
         return msg
 
     def predict(self, u):

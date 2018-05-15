@@ -24,12 +24,19 @@ class KalmanFilterNode():
         Xm = None
         found = False
         for pose in data.poses:
-            if pose_dist(self.X_est.pose.pose, pose) < 2*self.sphero_radius:
+            #print pose.position
+            #print self.X_est.pose.pose.position
+            #print pose_dist(self.X_est.pose.pose, pose)
+            #print
+            if pose_dist(self.X_est.pose.pose, pose) < self.sphero_radius:
                 Xm = pose
                 if found:
                     rospy.logwarn("Multiple markers found for " + rospy.get_name())
                 found = True
-
+        if Xm:
+            print Xm.position
+        else:
+            print Xm
         return Xm
 
     def input_callback(self, data):
@@ -39,10 +46,13 @@ class KalmanFilterNode():
         Xm = self.associate(data)
         if Xm is not None:
             X_hat, P_hat = self.filter.predict(0)
-            self.X_est = self.filter.update(X_hat, P_hat, self.Xm)
+            self.X_est = self.filter.update(X_hat, P_hat, Xm)
         else:
             X_hat, P_hat = self.filter.predict(0)
             self.X_est = self.filter.get_used_state(X_hat)
+        print self.X_est.pose.pose.position
+        print self.X_est.twist.twist.linear
+        print "========================"
 
     def __init__(self):
         """Initialize agent instance, create subscribers and publishers."""
@@ -50,7 +60,6 @@ class KalmanFilterNode():
         pub = rospy.Publisher('odom', Odometry, queue_size=1)
 
         # Initialize class variables
-        self.Xm = Pose()
         self.sphero_radius = 0.075
         initial_pos = self.get_initial_position()
         print rospy.get_namespace()

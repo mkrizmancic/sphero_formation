@@ -45,6 +45,11 @@ class InitializationNode():
             print self.current_position.position, '\n'
             self.pubs[key].publish(0.0, 0.0, 0.0, 1.0)  # ..turn off LEDs..
 
+        for key in self.pubs.keys():  # For each Sphero..
+            rospy.sleep(1)
+            self.pubs[key].publish(1.0, 1.0, 1.0, 1.0)  # ..turn on LEDs
+
+
         # Create a service server
         rospy.Service('return_initials', ReturnInitials, self.handle_init)
 
