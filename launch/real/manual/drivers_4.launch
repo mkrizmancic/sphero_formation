@@ -1,0 +1,38 @@
+<launch>
+	<arg name="adr0" default="E9:C8:1D:54:E4:31"/>
+	<arg name="adr1" default="FA:0D:D3:FD:C8:03"/>
+	<arg name="adr2" default="D8:B4:54:69:F3:8F"/>
+	<arg name="adr3" default="E6:CD:44:A7:EF:7D"/>
+<!-- 	<arg name="adr0" default="EE:D3:34:87:1D:70"/>
+	<arg name="adr1" default="ED:AF:DA:59:58:FC"/>
+	<arg name="adr2" default="E2:6A:A9:2C:64:3D"/>
+	<arg name="adr3" default="E6:A3:F0:3F:B6:48"/>
+	<arg name="adr0" default="FB:28:2C:0B:75:19"/>
+	<arg name="adr1" default="C9:28:93:02:46:F7"/>
+	<arg name="adr2" default="C4:5F:2C:3B:96:A6"/> -->
+
+    <!-- Start Sphero drivers -->
+	<group ns="sphero_0">
+		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen" >
+			<param name="adresa" type="str" value="$(arg adr0)"/>
+		</node>
+	</group>
+
+	<group ns="sphero_1">
+		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen">
+			<param name="adresa" type="str" value="$(arg adr1)"/>
+		</node>
+	</group>
+
+	<group ns="sphero_2">
+		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen">
+			<param name="adresa" type="str" value="$(arg adr2)"/>
+		</node>
+	</group>
+
+	<group ns="sphero_3">
+		<node pkg="sphero_sprk" type="sphero_driver.py" name="driver" output="screen">
+			<param name="adresa" type="str" value="$(arg adr3)"/>
+		</node>
+	</group>
+</launch>
