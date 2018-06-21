@@ -26,13 +26,26 @@ class ReynoldsController():
         obstacles = data[1].poses
 
         # Compute agent's velocity and publish the command
-        cmd_vel = self.agent.compute_velocity(my_agent, nearest_agents, obstacles)
-        self.pub.publish(cmd_vel)
+        if self.params_set:
+            cmd_vel = self.agent.compute_velocity(my_agent, nearest_agents, obstacles)
+            self.pub.publish(cmd_vel)
 
     def param_callback(self, data):
-        """Unpack flocking algorithm parameters."""
-        rospy.sleep(0.1)
-        self.agent.update_parameters()
+        """Call method for updating flocking parameters from server."""
+        self.params_set = True
+
+        params = dict()  # Dictionary for passing parameters
+        params['alignment_factor'] = rospy.get_param('/dyn_reconf/alignment_factor')
+        params['cohesion_factor'] = rospy.get_param('/dyn_reconf/cohesion_factor')
+        params['separation_factor'] = rospy.get_param('/dyn_reconf/separation_factor')
+        params['avoid_factor'] = rospy.get_param('/dyn_reconf/avoid_factor')
+        params['max_speed'] = rospy.get_param('/dyn_reconf/max_speed')
+        params['max_force'] = rospy.get_param('/dyn_reconf/max_force')
+        params['friction'] = rospy.get_param('/dyn_reconf/friction')
+        params['crowd_radius'] = rospy.get_param('/dyn_reconf/crowd_radius')
+        params['search_radius'] = rospy.get_param('/dyn_reconf/search_radius')
+
+        self.agent.update_parameters(params)
 
     def __init__(self):
         """Initialize agent instance, create subscribers and publishers."""
@@ -40,14 +53,17 @@ class ReynoldsController():
         self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 
         # Initialize class variables
-        self.agent = Boid()
+        init_vel_x = rospy.get_param("~init_vel_x", 0)
+        init_vel_y = rospy.get_param("~init_vel_y", 0)
+        self.agent = Boid(init_vel_x, init_vel_y)
+        self.params_set = False
 
         # Create subscribers
+        rospy.Subscriber('/param_update', Empty, self.param_callback, queue_size=1)
+
         subs = [mf.Subscriber("nearest", OdometryArray), mf.Subscriber("avoid", PoseArray)]
         self.ts = mf.TimeSynchronizer(subs, 10)
         self.ts.registerCallback(self.callback)
-
-        rospy.Subscriber('/param_update', Empty, self.param_callback, queue_size=1)
 
         # Main while loop.
         rate = rospy.Rate(10)

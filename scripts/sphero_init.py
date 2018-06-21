@@ -22,7 +22,7 @@ class InitializationNode():
         # Get the number of agents
         self.num_robots = rospy.get_param("/sphero_init/num_of_robots", 4)
 
-        # Crete publishers for sending color commands
+        # Create publishers for sending color commands
         pub_keys = ['/sphero_{}/'.format(i) for i in range(self.num_robots)]
         self.pubs = dict.fromkeys(pub_keys)
         for key in self.pubs.keys():
@@ -30,7 +30,7 @@ class InitializationNode():
 
         # Initialize class variables
         self.initial_positions = dict.fromkeys(pub_keys, Pose())
-        self.current_position = Pose()
+        self.current_position = None
 
         # Create a subscriber
         rospy.Subscriber('/mocap_node/locations', PoseArray, self.callback, queue_size=1)
@@ -41,14 +41,17 @@ class InitializationNode():
             rospy.sleep(2)
             self.pubs[key].publish(1.0, 1.0, 1.0, 1.0)  # ..turn on LEDs..
             rospy.sleep(2)
-            self.initial_positions[key] = self.current_position  # ..get its position..
+            if self.current_position is not None:
+                self.initial_positions[key] = self.current_position  # ..get its position..
+                self.current_position = None
+            else:
+                rospy.logerr("Initial position not found for " + key)
             print self.current_position.position, '\n'
             self.pubs[key].publish(0.0, 0.0, 0.0, 1.0)  # ..turn off LEDs..
 
         for key in self.pubs.keys():  # For each Sphero..
             rospy.sleep(1)
             self.pubs[key].publish(1.0, 1.0, 1.0, 1.0)  # ..turn on LEDs
-
 
         # Create a service server
         rospy.Service('return_initials', ReturnInitials, self.handle_init)

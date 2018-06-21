@@ -1,3 +1,5 @@
+# Sphero identifier in form '/sphero_X'
 string key
 ---
+# Initial position of the Sphero
 geometry_msgs/Pose initial

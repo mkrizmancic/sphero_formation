@@ -18,15 +18,12 @@ class DynReconf():
     def __init__(self):
         """Initialize publisher and dynamic reconfigure server."""
         # Create publisher
-        self.pub = rospy.Publisher('param_update', Empty, queue_size=1)
+        self.pub = rospy.Publisher('param_update', Empty, queue_size=1, latch=True)
 
         # Start dynamic reconfigure server
         Server(ReynoldsConfig, self.callback)
 
-        # Main while loop.
-        rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            rate.sleep()
+        rospy.spin()
 
     def callback(self, config, level):
         """Display all parameters when changed and signal to update."""

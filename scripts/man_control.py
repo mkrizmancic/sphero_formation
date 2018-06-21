@@ -15,7 +15,7 @@ class ManControlNode():
         # Sphero driver prima vrijednosti brzine u rasponu 0-255
         self.cmd_vel.linear.y = int(data.axes[1] * 255 * self.sensitivity)
         self.cmd_vel.linear.x = -int(data.axes[0] * 255 * self.sensitivity)
-        #print (rospy.get_name() + "  cmd_vel: ", self.cmd_vel)
+        # print (rospy.get_name() + "  cmd_vel: ", self.cmd_vel)
 
         # Back LED: blue button X
         if data.buttons[0]:
@@ -42,9 +42,9 @@ class ManControlNode():
             self.pub_hdg.publish(self.heading)
 
         if data.buttons[5]:
-            self.pub_stab.publish(1) # disable stabilization
+            self.pub_stab.publish(1)  # disable stabilization
         elif data.buttons[7]:
-            self.pub_stab.publish(0) # enable stabilization
+            self.pub_stab.publish(0)  # enable stabilization
 
     def __init__(self):
         # Create a publisher for commands

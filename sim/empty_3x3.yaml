@@ -1,5 +1,5 @@
 image: empty_3x3.bmp
-resolution: 0.01
+resolution: 0.05
 origin: [-1.5, -1.5, 0.0]
 occupied_thresh: 0.8
 free_thresh: 0.2

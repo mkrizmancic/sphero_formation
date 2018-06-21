@@ -1,6 +1,0 @@
-<launch>
-	<!-- Start Reynolds controller for each Sphero -->
-	<group ns="robot_0">
-		<node pkg="sphero_formation" type="reynolds_controller.py" name="reynolds0" output="screen"/>
-	</group>
-</launch>

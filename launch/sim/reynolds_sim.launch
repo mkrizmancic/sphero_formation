@@ -1,7 +1,7 @@
 <launch>
 	<!-- Set the arguments -->
-	<arg name="num" default="7"/>  <!-- Number of robots -->
-	<arg name="map_name" default="empty_10x10"/>  <!-- Name of the simulation map -->
+	<arg name="num" default="12"/>  <!-- Number of robots -->
+	<arg name="map_name" default="random_10x10"/>  <!-- Name of the simulation map -->
 
 	<arg name="map_world" default="$(find sphero_formation)/sim/$(arg map_name)_$(arg num).world"/>
 	<arg name="map_yaml" default="$(find sphero_formation)/sim/$(arg map_name).yaml"/>
@@ -21,6 +21,6 @@
 <!-- 	<node pkg="sphero_formation" type="simulation_tf.py" name="tf_server"/>
  -->
 
-	<!-- Start map serever -->
+	<!-- Start map server -->
 	<node pkg="map_server" type="map_server" args="$(arg map_yaml)" name="map_server"/>
 </launch>

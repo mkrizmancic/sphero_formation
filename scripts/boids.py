@@ -34,7 +34,7 @@ def get_obst_position(obst):
     return pos
 
 
-class Boid():
+class Boid(object):
     """
     An implementation of Craig Reynolds' flocking rules and boid objects.
 
@@ -47,12 +47,14 @@ class Boid():
     from obstacles in their search radius.
 
     Each component yields a force on boid. Total force then gives the
-    acceleration which is multiplied by time and added to boid's velocity.
-    Force and velocity are limited to specified amount.
+    acceleration which is integrated to boid's velocity. Force and velocity are
+    limited to the specified amount.
 
     Attributes:
         position (Vector2): Boid's position
         velocity (Vector2): Boid's velocity
+
+    Parameters:
         mass (Vector2): Boid's mass
         alignment_factor (double): Weight for alignment component
         cohesion_factor (double): Weight for cohesion component
@@ -74,24 +76,29 @@ class Boid():
             Compute total velocity based on all components
     """
 
-    def __init__(self):
+    def __init__(self, initial_velocity_x, initial_velocity_y):
         """Create an empty boid and update parameters."""
         self.position = Vector2()
         self.velocity = Vector2()
-        self.update_parameters()
         self.mass = 0.18  # Mass of Sphero robot in kilograms
+        self.start_count = 10
+        self.wait_count = 30
 
-    def update_parameters(self):
+        self.initial_velocity = Twist()
+        self.initial_velocity.linear.x = initial_velocity_x
+        self.initial_velocity.linear.y = initial_velocity_y
+
+    def update_parameters(self, params):
         """Save Reynolds controller parameters in class variables."""
-        self.alignment_factor = rospy.get_param('/dyn_reconf/alignment_factor')
-        self.cohesion_factor = rospy.get_param('/dyn_reconf/cohesion_factor')
-        self.separation_factor = rospy.get_param('/dyn_reconf/separation_factor')
-        self.avoid_factor = rospy.get_param('/dyn_reconf/avoid_factor')
-        self.max_speed = rospy.get_param('/dyn_reconf/max_speed')
-        self.max_force = rospy.get_param('/dyn_reconf/max_force')
-        self.friction = rospy.get_param('/dyn_reconf/friction')
-        self.crowd_radius = rospy.get_param('/dyn_reconf/crowd_radius')
-        self.search_radius = rospy.get_param('/dyn_reconf/search_radius')
+        self.alignment_factor = params['alignment_factor']
+        self.cohesion_factor = params['cohesion_factor']
+        self.separation_factor = params['separation_factor']
+        self.avoid_factor = params['avoid_factor']
+        self.max_speed = params['max_speed']
+        self.max_force = params['max_force']
+        self.friction = params['friction']
+        self.crowd_radius = params['crowd_radius']
+        self.search_radius = params['search_radius']
 
         rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
         if DEBUG:
@@ -187,46 +194,55 @@ class Boid():
 
     def compute_velocity(self, my_agent, nearest_agents, avoids):
         """Compute total velocity based on all components."""
-        force = Vector2()
-        self.velocity = get_agent_velocity(my_agent)
+        if self.wait_count > 0:
+            self.wait_count -= 1
+            return Twist()
 
-        # Compute all the components
-        alignment = self.compute_alignment(nearest_agents)
-        cohesion = self.compute_cohesion(nearest_agents)
-        separation = self.compute_separation(nearest_agents)
-        avoid = self.compute_avoids(avoids)
+        if self.start_count > 0:
+            self.start_count -= 1
+            return self.initial_velocity
 
-        if DEBUG:
-            print("alignment:    ", alignment)
-            print("cohesion:     ", cohesion)
-            print("separation:   ", separation)
-            print("avoid:        ", avoid)
+        else:
+            force = Vector2()
+            self.velocity = get_agent_velocity(my_agent)
 
-        # Add components together and limit the output
-        force += alignment * self.alignment_factor
-        force += cohesion * self.cohesion_factor
-        force += separation * self.separation_factor
-        force += avoid * self.avoid_factor
-        force.limit(self.max_force)
+            # Compute all the components
+            alignment = self.compute_alignment(nearest_agents)
+            cohesion = self.compute_cohesion(nearest_agents)
+            separation = self.compute_separation(nearest_agents)
+            avoid = self.compute_avoids(avoids)
 
-        # If agent is moving, apply constant friction force
-        if self.velocity.norm() > 0:
-            force += self.friction * -1 * self.velocity.normalize(ret=True)
+            if DEBUG:
+                print("alignment:    ", alignment)
+                print("cohesion:     ", cohesion)
+                print("separation:   ", separation)
+                print("avoid:        ", avoid)
 
-        acceleration = force / self.mass
+            # Add components together and limit the output
+            force += alignment * self.alignment_factor
+            force += cohesion * self.cohesion_factor
+            force += separation * self.separation_factor
+            force += avoid * self.avoid_factor
+            force.limit(self.max_force)
 
-        # Calculate total velocity (delta_velocity = acceleration * delta_time)
-        self.velocity += acceleration / 10
-        self.velocity.limit(self.max_speed)
+            # If agent is moving, apply constant friction force
+            if self.velocity.norm() > 0:
+                force += self.friction * -1 * self.velocity.normalize(ret=True)
 
-        if DEBUG:
-            print("force:        ", force)
-            print("acceleration: ", acceleration)
-            print("velocity:     ", self.velocity)
-            print()
+            acceleration = force / self.mass
 
-        # Return the the velocity as Twist message
-        vel = Twist()
-        vel.linear.x = self.velocity.x
-        vel.linear.y = self.velocity.y
-        return vel
+            # Calculate total velocity (delta_velocity = acceleration * delta_time)
+            self.velocity += acceleration / 10
+            self.velocity.limit(self.max_speed)
+
+            if DEBUG:
+                print("force:        ", force)
+                print("acceleration: ", acceleration)
+                print("velocity:     ", self.velocity)
+                print()
+
+            # Return the the velocity as Twist message
+            vel = Twist()
+            vel.linear.x = self.velocity.x
+            vel.linear.y = self.velocity.y
+            return vel
