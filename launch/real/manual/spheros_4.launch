@@ -18,7 +18,7 @@
 			<param name="sensitivity" value="$(arg sens)"/>
 		</node>
 
-        <node pkg="sphero_formation" type="kalman_filter.py" name="kalman" output="screen"/>
+        <node pkg="sphero_formation" type="kalman_filter_node.py" name="kalman" output="screen"/>
 	</group>
 
 	<group ns="sphero_1">
@@ -27,7 +27,7 @@
 			<param name="sensitivity" value="$(arg sens)"/>
 		</node>
 
-        <node pkg="sphero_formation" type="kalman_filter.py" name="kalman"/>
+        <node pkg="sphero_formation" type="kalman_filter_node.py" name="kalman"/>
 	</group>
 
 	<group ns="sphero_2">
@@ -36,7 +36,7 @@
 			<param name="sensitivity" value="$(arg sens)"/>
 		</node>
 
-        <node pkg="sphero_formation" type="kalman_filter.py" name="kalman"/>
+        <node pkg="sphero_formation" type="kalman_filter_node.py" name="kalman"/>
 	</group>
 
 	<group ns="sphero_3">
@@ -45,6 +45,7 @@
 			<param name="sensitivity" value="$(arg sens)"/>
 		</node>
 
-        <node pkg="sphero_formation" type="kalman_filter.py" name="kalman"/>
+        <node pkg="sphero_formation" type="kalman_filter_node.py" name="kalman"/>
 	</group>
+	
 </launch>

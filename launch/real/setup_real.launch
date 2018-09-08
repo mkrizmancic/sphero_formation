@@ -1,0 +1,24 @@
+<launch>
+	<!-- Set the arguments -->
+	<arg name="num" default="4"/>  <!-- Number of robots -->
+	<arg name="map_name" default="across"/>  <!-- Name of the map -->
+	
+	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
+
+	<!-- Include launch file with drivers and Kalman filter -->
+	<!-- <include file="$(find sphero_formation)/launch/real/spheros_$(arg num).launch"/> -->
+
+	<!-- Start nearest_search node: search for other Spheros in range-->
+	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen">
+		<param name="num_of_robots" type="int" value="$(arg num)"/>
+	</node>
+
+	<!-- Start map server -->
+	<node pkg="map_server" type="map_server" args="$(arg map_yaml)" name="map_server"/>
+
+	<!-- Start rqt_reconfigure GUI -->
+	<node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
+
+	<!-- Start dynamic reconfigure node -->
+	<node pkg="sphero_formation" type="dynamic_reconfigure_node.py" name="dyn_reconf" output="screen"/>
+</launch>

@@ -11,9 +11,10 @@ class KalmanFilter():
         self.X0 = self.get_numpy_state(position, velocity)
         self.P0 = 0.001 * np.eye(4)
 
-        Q = 0.25 ** 2
-        L = np.array([[T**2/2], [T**2/2], [T], [T]])
-        self.Q = L.dot(Q).dot(L.T)
+        # Q = 0.25 ** 2
+        # L = np.array([[T**2/2], [T**2/2], [T], [T]])
+        # self.Q = L.dot(Q).dot(L.T)
+        self.Q = 0.025 ** 2 * np.eye(4)
         self.R = 0.001 * np.eye(2)
 
         self.A = np.array([[1, 0, T, 0], [0, 1, 0, T], [0, 0, 1, 0], [0, 0, 0, 1]])
@@ -36,6 +37,7 @@ class KalmanFilter():
         time = rospy.Time.now()
         msg = Odometry()
         msg.header.stamp = time
+        msg.header.frame_id = rospy.get_namespace()
         msg.pose.pose.position.x = np_state[0][0]
         msg.pose.pose.position.y = np_state[1][0]
         msg.twist.twist.linear.x = np_state[2][0]
@@ -63,7 +65,7 @@ class KalmanFilter():
         eye = np.eye(4)  # Identity matrix
         P_ = self.P_old  # P minus
         X_hat_m = self.X_old  # X hat minus
-        Xm = self.get_numpy_state(Xm, 0)
+        Xm = self.get_numpy_state(Xm, Twist())
 
         # K = P(-)*H^T * [H*P(-)*H^T + R]^-1
         # X(+) = X(-) + K*[y - H*X(-)]

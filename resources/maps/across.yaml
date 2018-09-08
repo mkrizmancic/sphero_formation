@@ -1,0 +1,6 @@
+image: across.bmp
+resolution: 0.05
+origin: [-2, -1.4, 0.0]
+occupied_thresh: 0.8
+free_thresh: 0.2
+negate: 0

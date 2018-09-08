@@ -7,7 +7,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from util import Vector2
 
-DEBUG = False
+DEBUG = True
 
 
 def get_agent_velocity(agent):
@@ -50,7 +50,7 @@ class Boid(object):
     acceleration which is integrated to boid's velocity. Force and velocity are
     limited to the specified amount.
 
-    Attributes:
+    State:
         position (Vector2): Boid's position
         velocity (Vector2): Boid's velocity
 
@@ -81,7 +81,7 @@ class Boid(object):
         self.position = Vector2()
         self.velocity = Vector2()
         self.mass = 0.18  # Mass of Sphero robot in kilograms
-        self.start_count = 10
+        self.start_count = 0
         self.wait_count = 30
 
         self.initial_velocity = Twist()
@@ -102,15 +102,15 @@ class Boid(object):
 
         rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
         if DEBUG:
-            print('alignment_factor:  ', self.alignment_factor)
-            print('cohesion_factor:  ', self.cohesion_factor)
-            print('separation_factor:  ', self.separation_factor)
-            print('avoid_factor:  ', self.avoid_factor)
-            print('max_speed:  ', self.max_speed)
-            print('max_force:  ', self.max_force)
-            print('friction:  ', self.friction)
-            print('crowd_radius:  ', self.crowd_radius)
-            print('search_radius:  ', self.search_radius)
+            rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
+            rospy.logdebug('cohesion_factor:  %s', self.cohesion_factor)
+            rospy.logdebug('separation_factor:  %s', self.separation_factor)
+            rospy.logdebug('avoid_factor:  %s', self.avoid_factor)
+            rospy.logdebug('max_speed:  %s', self.max_speed)
+            rospy.logdebug('max_force:  %s', self.max_force)
+            rospy.logdebug('friction:  %s', self.friction)
+            rospy.logdebug('crowd_radius:  %s', self.crowd_radius)
+            rospy.logdebug('search_radius:  %s', self.search_radius)
 
     def compute_alignment(self, nearest_agents):
         """Return alignment component."""
@@ -196,10 +196,12 @@ class Boid(object):
         """Compute total velocity based on all components."""
         if self.wait_count > 0:
             self.wait_count -= 1
+            rospy.logdebug("wait " + '{}'.format(self.wait_count))
             return Twist()
 
-        if self.start_count > 0:
+        elif self.start_count > 0:
             self.start_count -= 1
+            rospy.logdebug("start " + '{}'.format(self.start_count))
             return self.initial_velocity
 
         else:
@@ -213,10 +215,10 @@ class Boid(object):
             avoid = self.compute_avoids(avoids)
 
             if DEBUG:
-                print("alignment:    ", alignment)
-                print("cohesion:     ", cohesion)
-                print("separation:   ", separation)
-                print("avoid:        ", avoid)
+                rospy.logdebug("alignment:    %s", alignment)
+                rospy.logdebug("cohesion:     %s", cohesion)
+                rospy.logdebug("separation:   %s", separation)
+                rospy.logdebug("avoid:        %s", avoid)
 
             # Add components together and limit the output
             force += alignment * self.alignment_factor
@@ -236,10 +238,10 @@ class Boid(object):
             self.velocity.limit(self.max_speed)
 
             if DEBUG:
-                print("force:        ", force)
-                print("acceleration: ", acceleration)
-                print("velocity:     ", self.velocity)
-                print()
+                rospy.logdebug("force:        %s", force)
+                rospy.logdebug("acceleration: %s", acceleration)
+                rospy.logdebug("velocity:     %s", self.velocity)
+                rospy.logdebug("\n")
 
             # Return the the velocity as Twist message
             vel = Twist()

@@ -4,7 +4,7 @@ include "definitions.inc"
 floorplan
 ( 
 	name "empty_10x10"
-	bitmap "empty_10x10.bmp"
+	bitmap "../maps/empty_10x10.bmp"
 	size [10 10 1]  # duzina sirina visina
 	pose [ 0 0 0 0 ]
 )

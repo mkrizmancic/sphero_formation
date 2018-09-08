@@ -27,25 +27,21 @@ class ReynoldsController():
 
         # Compute agent's velocity and publish the command
         if self.params_set:
-            cmd_vel = self.agent.compute_velocity(my_agent, nearest_agents, obstacles)
+            ret_vel = self.agent.compute_velocity(my_agent, nearest_agents, obstacles)
+            cmd_vel = Twist()
+            cmd_vel.linear.x = int(ret_vel.linear.x * 100)
+            cmd_vel.linear.y = int(ret_vel.linear.y * 100)
             self.pub.publish(cmd_vel)
 
     def param_callback(self, data):
         """Call method for updating flocking parameters from server."""
+
+        param_names = ['alignment_factor', 'cohesion_factor', 'separation_factor', 'avoid_factor',
+                       'max_speed', 'max_force', 'friction', 'crowd_radius', 'search_radius']
+        # Dictionary for passing parameters
+        param_dict = {param: rospy.get_param('/dyn_reconf/' + param) for param in param_names}
+        self.agent.update_parameters(param_dict)
         self.params_set = True
-
-        params = dict()  # Dictionary for passing parameters
-        params['alignment_factor'] = rospy.get_param('/dyn_reconf/alignment_factor')
-        params['cohesion_factor'] = rospy.get_param('/dyn_reconf/cohesion_factor')
-        params['separation_factor'] = rospy.get_param('/dyn_reconf/separation_factor')
-        params['avoid_factor'] = rospy.get_param('/dyn_reconf/avoid_factor')
-        params['max_speed'] = rospy.get_param('/dyn_reconf/max_speed')
-        params['max_force'] = rospy.get_param('/dyn_reconf/max_force')
-        params['friction'] = rospy.get_param('/dyn_reconf/friction')
-        params['crowd_radius'] = rospy.get_param('/dyn_reconf/crowd_radius')
-        params['search_radius'] = rospy.get_param('/dyn_reconf/search_radius')
-
-        self.agent.update_parameters(params)
 
     def __init__(self):
         """Initialize agent instance, create subscribers and publishers."""
@@ -73,7 +69,7 @@ class ReynoldsController():
 
 if __name__ == '__main__':
     # Initialize the node and name it.
-    rospy.init_node('ReynoldsController')
+    rospy.init_node('ReynoldsController', log_level=rospy.DEBUG)
 
     # Go to class functions that do all the heavy lifting
     # Do error checking

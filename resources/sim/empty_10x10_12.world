@@ -3,8 +3,8 @@ include "definitions.inc"
 # load an environment bitmap
 floorplan
 ( 
-	name "random_10x10"
-	bitmap "random_10x10.bmp"
+	name "empty_10x10"
+	bitmap "../maps/empty_10x10.bmp"
 	size [10 10 1]  # duzina sirina visina
 	pose [ 0 0 0 0 ]
 )

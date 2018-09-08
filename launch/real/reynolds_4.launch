@@ -1,30 +1,30 @@
 <launch>
 	<!-- Start Reynolds controller for each Sphero -->
-	<group ns="robot_0">
-		<node pkg="sphero_formation" type="reynolds_controller.py" name="reynolds">
+	<group ns="sphero_0">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="reynolds" output="screen">
 			<param name="init_vel_x" type="double" value="0"/>
-			<param name="init_vel_y" type="double" value="0"/>
+			<param name="init_vel_y" type="double" value="0.5"/>
 		</node>
 	</group>
 
-	<group ns="robot_1">
+	<group ns="sphero_1">
 		<node pkg="sphero_formation" type="reynolds_controller.py" name="reynolds">
 			<param name="init_vel_x" type="double" value="0"/>
-			<param name="init_vel_y" type="double" value="0"/>
+			<param name="init_vel_y" type="double" value="0.5"/>
 		</node>
 	</group>
 
-	<group ns="robot_2">
+	<group ns="sphero_2">
 		<node pkg="sphero_formation" type="reynolds_controller.py" name="reynolds">
 			<param name="init_vel_x" type="double" value="0"/>
-			<param name="init_vel_y" type="double" value="0"/>
+			<param name="init_vel_y" type="double" value="0.5"/>
 		</node>
 	</group>
 
-	<group ns="robot_3">
+	<group ns="sphero_3">
 		<node pkg="sphero_formation" type="reynolds_controller.py" name="reynolds">
 			<param name="init_vel_x" type="double" value="0"/>
-			<param name="init_vel_y" type="double" value="0"/>
+			<param name="init_vel_y" type="double" value="0.5"/>
 		</node>
 	</group>
 </launch>

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import rospy
-from geometry_msgs.msg import Twist, PoseArray
+from geometry_msgs.msg import PoseArray
 from nav_msgs.msg import Odometry
 from kalman_filter import KalmanFilter
 from util import pose_dist
@@ -22,20 +22,20 @@ class KalmanFilterNode():
 
     def associate(self, data):
         X_measured = None
-        found = False
+        # found = False
         for pose in data.poses:
             if pose_dist(self.X_est.pose.pose, pose) < self.sphero_radius:
                 X_measured = pose
                 self.missing_counter = 0
-                if found:
-                    rospy.logwarn("Multiple markers found for " + rospy.get_name())
-                found = True
+                # if found:
+                #     rospy.logwarn("Multiple markers found for " + rospy.get_name())
+                # found = True
 
         if X_measured is None:
             self.missing_counter += 1
             if self.missing_counter % 10 == 0:
-                rospy.logerr(rospy.get_name() + "marker mising for " +
-                             self.missing_counter + " consecutive iterations.")
+                rospy.logerr(rospy.get_name() +
+                             "marker mising for %d consecutive iterations.", self.missing_counter)
 
         return X_measured
 
@@ -57,7 +57,7 @@ class KalmanFilterNode():
 
         # Initialize class variables
         self.missing_counter = 0
-        self.sphero_radius = 0.075
+        self.sphero_radius = 0.06
         initial_pos = self.get_initial_position()
         print rospy.get_namespace()
         print initial_pos.position, '\n'
@@ -76,12 +76,13 @@ class KalmanFilterNode():
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             pub.publish(self.X_est)
+            print self.X_est.twist.twist.linear, '\n'
             pos = self.X_est.pose.pose.position
             br.sendTransform((pos.x, pos.y, pos.z),
                              (0, 0, 0, 1),
                              rospy.Time.now(),
                              rospy.get_namespace(),
-                             'world')
+                             'map')
             rate.sleep()
 
 

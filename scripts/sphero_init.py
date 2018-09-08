@@ -26,7 +26,7 @@ class InitializationNode():
         pub_keys = ['/sphero_{}/'.format(i) for i in range(self.num_robots)]
         self.pubs = dict.fromkeys(pub_keys)
         for key in self.pubs.keys():
-            self.pubs[key] = rospy.Publisher(key + 'set_color_', ColorRGBA, queue_size=1)
+            self.pubs[key] = rospy.Publisher(key + 'set_color', ColorRGBA, queue_size=1)
 
         # Initialize class variables
         self.initial_positions = dict.fromkeys(pub_keys, Pose())
@@ -38,15 +38,16 @@ class InitializationNode():
         # Main while loop.
         for key in self.pubs.keys():  # For each Sphero..
             print 'Light up ', key
-            rospy.sleep(2)
+            rospy.sleep(1)
             self.pubs[key].publish(1.0, 1.0, 1.0, 1.0)  # ..turn on LEDs..
             rospy.sleep(2)
             if self.current_position is not None:
                 self.initial_positions[key] = self.current_position  # ..get its position..
+                print self.current_position.position, '\n'
                 self.current_position = None
             else:
                 rospy.logerr("Initial position not found for " + key)
-            print self.current_position.position, '\n'
+
             self.pubs[key].publish(0.0, 0.0, 0.0, 1.0)  # ..turn off LEDs..
 
         for key in self.pubs.keys():  # For each Sphero..
@@ -66,6 +67,6 @@ if __name__ == '__main__':
     # Go to class functions that do all the heavy lifting
     # Do error checking
     try:
-        i = InitializationNode()
+        IN = InitializationNode()
     except rospy.ROSInterruptException:
         pass

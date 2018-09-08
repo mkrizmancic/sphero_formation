@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import math
 import rospy
 import message_filters as mf
@@ -44,21 +45,20 @@ class NearestSearch():
     def pos_to_index(self, x_real, y_real):
         """Return list (map) indices for given real position coordinates."""
         col = (x_real - self.map_origin.x) / self.map_resolution
-        row = -(y_real + self.map_origin.y) / self.map_resolution
+        row = (self.map_origin.y + self.map_height * self.map_resolution - y_real) / self.map_resolution
         return int(col), int(row)
 
     def index_to_pos(self, row, col):
         """Return real position coordinates for list (map) indices."""
-        x_real = col * self.map_resolution + self.map_origin.x
-        y_real = -(row * self.map_resolution + self.map_origin.y)
+        x_real = self.map_origin.x + col * self.map_resolution
+        y_real = self.map_origin.y + (self.map_height - row) * self.map_resolution
         return x_real, y_real
 
     def param_callback(self, data):
-        """Update search parametars from server"""
-        self.update_parameters()
+        """Update search parametars from server."""
+        while not rospy.has_param('/dyn_reconf/search_radius'):
+            rospy.sleep(0.1)
 
-    def update_parameters(self):
-        """Update search parameters."""
         self.search_radius = rospy.get_param('/dyn_reconf/search_radius')
         avoid_radius = rospy.get_param('/dyn_reconf/avoid_radius')
         self.r = int(avoid_radius / self.map_resolution)
@@ -105,10 +105,12 @@ class NearestSearch():
             # in specified search radius and return actual positions of the
             # walls and other obstacles.
             or_col, or_row = self.pos_to_index(agent_position.x, agent_position.y)
+            # if key == 'sphero_0': print (or_col, or_row)
             col_range = range(max(0, or_col - self.r), min(self.map_width, or_col + self.r + 1))
             row_range = range(max(0, or_row - self.r), min(self.map_height, or_row + self.r + 1))
             for row in row_range:
                 for col in col_range:
+                    # if key == 'sphero_0': print(self.map[row][col]/100, end=' ')
                     # Check only elements within radius
                     # Search obstacles in a circle instead of a square
                     if (pow(row - or_row, 2) + pow(col - or_col, 2)) <= pow(self.r, 2):
@@ -118,6 +120,7 @@ class NearestSearch():
                             obst.position.x = x - agent_position.x
                             obst.position.y = y - agent_position.y
                             avoids.poses.append(obst)
+                # if key == 'sphero_0': print('\n')
 
             # Publish the wall and obstacle positions message
             self.avoid[key].publish(avoids)
@@ -127,9 +130,10 @@ class NearestSearch():
 
         # Get the number of agents
         self.num_agents = rospy.get_param("~num_of_robots")
+        robot_name = 'sphero'
 
         # Create publishers for commands
-        pub_keys = ['robot_{}'.format(i) for i in range(self.num_agents)]
+        pub_keys = [robot_name + '_{}'.format(i) for i in range(self.num_agents)]
 
         # Publisher for locations of nearest agents
         self.nearest = dict.fromkeys(pub_keys)
@@ -148,9 +152,11 @@ class NearestSearch():
         rospy.Subscriber("/map", OccupancyGrid, self.map_callback, queue_size=1)
         rospy.sleep(0.5)  # Wait for first map_callback to finish
         rospy.Subscriber('/param_update', Empty, self.param_callback, queue_size=1)
-        self.update_parameters()
-        subs = [mf.Subscriber("/robot_{}/odom".format(i), Odometry) for i in range(self.num_agents)]
-        self.ts = mf.TimeSynchronizer(subs, 10)
+        self.param_callback(None)
+
+        topic_name = '/' + robot_name + '_{}/odom'
+        subs = [mf.Subscriber(topic_name.format(i), Odometry) for i in range(self.num_agents)]
+        self.ts = mf.ApproximateTimeSynchronizer(subs, 10, 0.1)
         self.ts.registerCallback(self.robot_callback)
 
         # Main while loop.
