@@ -197,11 +197,13 @@ class Boid(object):
         if self.wait_count > 0:
             self.wait_count -= 1
             rospy.logdebug("wait " + '{}'.format(self.wait_count))
+            rospy.logdebug("velocity:\n%s", Twist().linear)
             return Twist()
 
         elif self.start_count > 0:
             self.start_count -= 1
             rospy.logdebug("start " + '{}'.format(self.start_count))
+            rospy.logdebug("velocity:\n%s", self.initial_velocity.linear)
             return self.initial_velocity
 
         else:

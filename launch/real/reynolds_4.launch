@@ -1,7 +1,7 @@
 <launch>
 	<!-- Start Reynolds controller for each Sphero -->
 	<group ns="sphero_0">
-		<node pkg="sphero_formation" type="reynolds_controller.py" name="reynolds" output="screen">
+		<node pkg="sphero_formation" type="reynolds_controller.py" name="reynolds">
 			<param name="init_vel_x" type="double" value="0"/>
 			<param name="init_vel_y" type="double" value="0.5"/>
 		</node>

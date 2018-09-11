@@ -11,6 +11,14 @@ class ManControlNode():
     def joystick_callback(self, data):
         """Receive inputs from joystick and convert them to control signals."""
 
+        if data.buttons[10]:
+            if self.enabled:
+                self.enabled = False
+                print "Manual control disabled"
+            else:
+                self.enabled = True
+                print "Manual control enabled"
+
         if data.buttons[5]:
             if self.driving_mode == 'analog':
                 self.driving_mode = 'digital'
@@ -78,6 +86,7 @@ class ManControlNode():
         self.sensitivity = rospy.get_param('~sensitivity', 0.2)
         self.real_vel_stp = 0.5
         self.driving_mode = 'analog'
+        self.enabled = False
 
         # Create a subscriber
         rospy.Subscriber("/joystick_input", Joy, self.joystick_callback, queue_size=1)
@@ -89,7 +98,8 @@ class ManControlNode():
         # Main while loop.
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            self.pub_vel.publish(self.cmd_vel)
+            if self.enabled:
+                self.pub_vel.publish(self.cmd_vel)
             rate.sleep()
 
 
