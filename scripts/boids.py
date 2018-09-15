@@ -7,7 +7,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from util import Vector2
 
-DEBUG = True
+DEBUG = False
 
 
 def get_agent_velocity(agent):

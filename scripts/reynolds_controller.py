@@ -69,7 +69,7 @@ class ReynoldsController():
 
 if __name__ == '__main__':
     # Initialize the node and name it.
-    rospy.init_node('ReynoldsController', log_level=rospy.DEBUG)
+    rospy.init_node('ReynoldsController')
 
     # Go to class functions that do all the heavy lifting
     # Do error checking

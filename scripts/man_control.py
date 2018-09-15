@@ -14,29 +14,27 @@ class ManControlNode():
         if data.buttons[10]:
             if self.enabled:
                 self.enabled = False
-                print "Manual control disabled"
+                if self.display_true: rospy.loginfo("Manual control disabled")
             else:
                 self.enabled = True
-                print "Manual control enabled"
+                if self.display_true: rospy.loginfo("Manual control enabled")
 
         if data.buttons[5]:
             if self.driving_mode == 'analog':
                 self.driving_mode = 'digital'
-                print "Driving mode: digital"
+                if self.display_true: rospy.loginfo("Driving mode: digital")
             else:
                 self.driving_mode = 'analog'
-                print "Driving mode: analog"
+                if self.display_true: rospy.loginfo("Driving mode: analog")
 
         if self.driving_mode == 'analog':
             # Sphero driver prima vrijednosti brzine u rasponu 0-255
             self.cmd_vel.linear.y = int(data.axes[1] * 255 * self.sensitivity)
             self.cmd_vel.linear.x = -int(data.axes[0] * 255 * self.sensitivity)
-            print "\n", self.cmd_vel.linear
 
         elif self.driving_mode == 'digital':
             self.cmd_vel.linear.y = int(data.axes[5] * self.real_vel_stp * 100)
             self.cmd_vel.linear.x = -int(data.axes[4] * self.real_vel_stp * 100)
-            print "\n", self.cmd_vel.linear
 
         # RGB LED colors
         if data.buttons[1]:  # green: green button A
@@ -56,12 +54,12 @@ class ManControlNode():
             self.real_vel_stp += 0.1
             if self.real_vel_stp > 3:
                 self.real_vel_stp = 3
-            print "Real speed setpoint: ", self.real_vel_stp
+            if self.display_true: rospy.loginfo("Real speed setpoint: %.1f", self.real_vel_stp)
         elif data.buttons[6]:
             self.real_vel_stp -= 0.1
             if self.real_vel_stp < 0:
                 self.real_vel_stp = 0
-            print "Real speed setpoint: ", self.real_vel_stp
+            if self.display_true: rospy.loginfo("Real speed setpoint: %.1f", self.real_vel_stp)
 
         # # Hold L1 and select heading using right stick
         # if data.buttons[4] == 1:
@@ -87,6 +85,10 @@ class ManControlNode():
         self.real_vel_stp = 0.5
         self.driving_mode = 'analog'
         self.enabled = False
+        if rospy.get_namespace() == '/sphero_0/':
+            self.display_true = True
+        else:
+            self.display_true = False
 
         # Create a subscriber
         rospy.Subscriber("/joystick_input", Joy, self.joystick_callback, queue_size=1)
@@ -105,7 +107,7 @@ class ManControlNode():
 
 if __name__ == '__main__':
     # Initialize the node and name it.
-    rospy.init_node('Controller')
+    rospy.init_node('man_control')
 
     # Go to class functions that do all the heavy lifting.
     # Do error checking.

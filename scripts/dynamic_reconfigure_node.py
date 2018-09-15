@@ -27,8 +27,8 @@ class DynReconf():
 
     def callback(self, config, level):
         """Display all parameters when changed and signal to update."""
-        rospy.loginfo(rospy.get_caller_id() +
-                      """\nReconfigure Request:
+        rospy.loginfo("[Dynamic reconfigure] => \n" +
+                      """\tReconfigure Request:
                         Alignment: {alignment_factor}
                         Cohesion: {cohesion_factor}
                         Separation: {separation_factor}

@@ -1,0 +1,8 @@
+<launch>
+	<arg name="num" default="4"/> <!-- Number of Spheros in use -->
+	<!-- Config file with Sphero addresses -->
+	<arg name="filename" default="$(find sphero_formation)/cfg/sphero_addresses.txt"/>
+
+	<!-- Start Sphero driver nodes launcher. -->
+	<node pkg="sphero_formation" type="drivers_launch.sh" name="Drivers_launcher" args="$(arg num) $(arg filename)" output="screen"/>
+</launch>

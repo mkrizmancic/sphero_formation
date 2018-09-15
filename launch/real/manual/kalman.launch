@@ -1,5 +1,0 @@
-<launch>
-	<group ns="sphero_0">
-	        <node pkg="sphero_formation" type="kalman_filter_node.py" name="kalman" output="screen"/>
-	</group>
-</launch>

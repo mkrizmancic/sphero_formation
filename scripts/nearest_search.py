@@ -130,7 +130,7 @@ class NearestSearch():
 
         # Get the number of agents
         self.num_agents = rospy.get_param("~num_of_robots")
-        robot_name = 'sphero'
+        robot_name = rospy.get_param("~robot_name")
 
         # Create publishers for commands
         pub_keys = [robot_name + '_{}'.format(i) for i in range(self.num_agents)]
@@ -145,9 +145,6 @@ class NearestSearch():
         for key in self.avoid.keys():
             self.avoid[key] = rospy.Publisher('/' + key + '/avoid', PoseArray, queue_size=1)
 
-        # Initialize other variables
-        self.first_call = False
-
         # Create subscribers
         rospy.Subscriber("/map", OccupancyGrid, self.map_callback, queue_size=1)
         rospy.sleep(0.5)  # Wait for first map_callback to finish
@@ -160,9 +157,7 @@ class NearestSearch():
         self.ts.registerCallback(self.robot_callback)
 
         # Main while loop.
-        rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            rate.sleep()
+        rospy.spin()
 
 
 if __name__ == '__main__':

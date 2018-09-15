@@ -18,7 +18,7 @@ class KalmanFilterNode():
             response = get_initials(rospy.get_namespace())
             return response.initial
         except rospy.ServiceException, e:
-            rospy.logerr("Service call failed: %s", e)
+            rospy.logerr(rospy.get_name() + ": Service call failed: %s", e)
 
     def associate(self, data):
         X_measured = None
@@ -33,9 +33,11 @@ class KalmanFilterNode():
 
         if X_measured is None:
             self.missing_counter += 1
-            if self.missing_counter % 10 == 0:
-                rospy.logerr(rospy.get_name() +
-                             "marker mising for %d consecutive iterations.", self.missing_counter)
+            if self.missing_counter % 10 == 0 and self.missing_counter <= 50:
+                rospy.logwarn(rospy.get_name() +
+                              "marker mising for %d consecutive iterations.", self.missing_counter)
+            elif self.missing_counter == 60:
+                rospy.logerr(rospy.get_name() + "lost tracking!!")
 
         return X_measured
 
@@ -59,8 +61,8 @@ class KalmanFilterNode():
         self.missing_counter = 0
         self.sphero_radius = 0.06
         initial_pos = self.get_initial_position()
-        print rospy.get_namespace()
-        print initial_pos.position, '\n'
+        rospy.loginfo(rospy.get_namespace() + initial_pos.position + '\n')
+
         self.filter = KalmanFilter(initial_pos)
         self.X_est = Odometry()
         self.X_est.pose.pose = initial_pos
@@ -76,7 +78,6 @@ class KalmanFilterNode():
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             pub.publish(self.X_est)
-            print self.X_est.twist.twist.linear, '\n'
             pos = self.X_est.pose.pose.position
             br.sendTransform((pos.x, pos.y, pos.z),
                              (0, 0, 0, 1),

@@ -20,7 +20,7 @@ class InitializationNode():
         """Initialize agent instance, create subscribers and publishers."""
 
         # Get the number of agents
-        self.num_robots = rospy.get_param("/sphero_init/num_of_robots", 4)
+        self.num_robots = rospy.get_param("~num_of_robots", 4)
 
         # Create publishers for sending color commands
         pub_keys = ['/sphero_{}/'.format(i) for i in range(self.num_robots)]
@@ -37,13 +37,12 @@ class InitializationNode():
 
         # Main while loop.
         for key in self.pubs.keys():  # For each Sphero..
-            print 'Light up ', key
+            rospy.loginfo('Light up ' + key)
             rospy.sleep(1)
             self.pubs[key].publish(1.0, 1.0, 1.0, 1.0)  # ..turn on LEDs..
             rospy.sleep(2)
             if self.current_position is not None:
                 self.initial_positions[key] = self.current_position  # ..get its position..
-                print self.current_position.position, '\n'
                 self.current_position = None
             else:
                 rospy.logerr("Initial position not found for " + key)
@@ -51,7 +50,7 @@ class InitializationNode():
             self.pubs[key].publish(0.0, 0.0, 0.0, 1.0)  # ..turn off LEDs..
 
         for key in self.pubs.keys():  # For each Sphero..
-            rospy.sleep(1)
+            rospy.sleep(0.5)
             self.pubs[key].publish(1.0, 1.0, 1.0, 1.0)  # ..turn on LEDs
 
         # Create a service server

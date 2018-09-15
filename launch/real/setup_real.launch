@@ -1,24 +1,29 @@
 <launch>
-	<!-- Set the arguments -->
-	<arg name="num" default="4"/>  <!-- Number of robots -->
-	<arg name="map_name" default="across"/>  <!-- Name of the map -->
-	
+	<!-- Set the arguments. -->
+	<arg name="num" default="4"/>  <!-- Number of Spheros in use-->
+	<arg name="sens" default="0.2"/> <!-- Sensitivity for the joystick [0.0 - 1.0] -->
+	<arg name="map_name" default="borongaj"/>  <!-- Name of the map -->
 	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
 
-	<!-- Include launch file with drivers and Kalman filter -->
-	<!-- <include file="$(find sphero_formation)/launch/real/spheros_$(arg num).launch"/> -->
+	<!-- Start Optitrack data streaming node. -->
+	<include file="$(find mocap_optitrack)/launch/mocap.launch"/>
 
-	<!-- Start nearest_search node: search for other Spheros in range-->
-	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen">
-		<param name="num_of_robots" type="int" value="$(arg num)"/>
-	</node>
-
-	<!-- Start map server -->
+	<!-- Start map server. -->
 	<node pkg="map_server" type="map_server" args="$(arg map_yaml)" name="map_server"/>
 
-	<!-- Start rqt_reconfigure GUI -->
+	<!-- Start rqt_reconfigure GUI. -->
 	<node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
 
-	<!-- Start dynamic reconfigure node -->
+	<!-- Start dynamic reconfigure node: allows changing parameters during runtime. -->
 	<node pkg="sphero_formation" type="dynamic_reconfigure_node.py" name="dyn_reconf" output="screen"/>
+
+	<!-- Start Joy node: user control with joystick. -->
+	<node pkg="joy" type="joy_node" name="JoyInput">
+		<!-- REPLACE value WITH THE RIGHT JOYSTICK IDENTIFIERˇˇˇ-->
+		<param name="dev" type="string" value="/dev/input/js1"/>
+		<param name="deadzone" value="0"/>
+	</node>
+
+	<!-- Start manual control nodes launcher. -->
+	<node pkg="sphero_formation" type="manual_ctrl_launch.sh" name="Manual_launcher" args="$(arg num) $(arg sens)" output="screen"/>
 </launch>

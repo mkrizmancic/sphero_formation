@@ -1,0 +1,15 @@
+<launch>
+	<arg name="num" default="4"/> <!-- Number of robots in use -->
+	<arg name="robot_name" default="sphero"/> <!-- Name/type of the robots in use -->
+	<!-- Config file with initial velocities for each Sphero -->
+	<arg name="filename" default="$(find sphero_formation)/cfg/sphero_init_vel.cfg"/>
+
+	<!-- Start nearest_search node: search for other Spheros in range. -->
+	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen">
+		<param name="num_of_robots" type="int" value="$(arg num)"/>
+		<param name="robot_name" type="string" value="$(arg robot_name)"/>
+	</node>
+
+	<!-- Start Reynolds controller nodes launcher. -->
+	<node pkg="sphero_formation" type="reynolds_launch.sh" name="Reynolds_launcher" args="$(arg num) $(arg filename)" output="screen"/>
+</launch>
