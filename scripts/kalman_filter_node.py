@@ -35,9 +35,10 @@ class KalmanFilterNode():
             self.missing_counter += 1
             if self.missing_counter % 10 == 0 and self.missing_counter <= 50:
                 rospy.logwarn(rospy.get_name() +
-                              "marker mising for %d consecutive iterations.", self.missing_counter)
+                              ": Marker mising for %d consecutive iterations.",
+                              self.missing_counter)
             elif self.missing_counter == 60:
-                rospy.logerr(rospy.get_name() + "lost tracking!!")
+                rospy.logerr(rospy.get_name() + ": Lost tracking!!")
 
         return X_measured
 
@@ -61,7 +62,7 @@ class KalmanFilterNode():
         self.missing_counter = 0
         self.sphero_radius = 0.06
         initial_pos = self.get_initial_position()
-        rospy.loginfo(rospy.get_namespace() + initial_pos.position + '\n')
+        rospy.loginfo(rospy.get_namespace() + '\n%s\n', initial_pos.position)
 
         self.filter = KalmanFilter(initial_pos)
         self.X_est = Odometry()
@@ -89,7 +90,7 @@ class KalmanFilterNode():
 
 if __name__ == '__main__':
     # Initialize the node and name it.
-    rospy.init_node('KalmanFilter')
+    rospy.init_node('Kalman')
 
     # Go to class functions that do all the heavy lifting
     # Do error checking

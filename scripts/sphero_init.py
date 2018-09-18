@@ -37,12 +37,24 @@ class InitializationNode():
 
         # Main while loop.
         for key in self.pubs.keys():  # For each Sphero..
-            rospy.loginfo('Light up ' + key)
             rospy.sleep(1)
+            rospy.loginfo('Light up ' + key)
             self.pubs[key].publish(1.0, 1.0, 1.0, 1.0)  # ..turn on LEDs..
             rospy.sleep(2)
+            retry_count = 0
+            # If found, position of the Sphero is in self.current_position. If
+            # not, try to get the position two more times.
+            while self.current_position is None and retry_count < 3:
+                rospy.logwarn("Initial position not found for " + key)
+                rospy.logwarn("Trying again...")
+                self.pubs[key].publish(0.0, 0.0, 0.0, 1.0)  # .. turn off LEDs..
+                rospy.sleep(1)
+                self.pubs[key].publish(1.0, 1.0, 1.0, 1.0)  # ..turn on LEDs..
+                rospy.sleep(2)
+                retry_count += 1
+
             if self.current_position is not None:
-                self.initial_positions[key] = self.current_position  # ..get its position..
+                self.initial_positions[key] = self.current_position  # ..store its position..
                 self.current_position = None
             else:
                 rospy.logerr("Initial position not found for " + key)

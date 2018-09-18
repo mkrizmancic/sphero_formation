@@ -2,6 +2,7 @@
 
 number_of_nodes=$1
 filename="$2" # config file with initial velocities for each Sphero
+robot_name="$3_" # robot name
 
 echo "Launching $number_of_nodes Reynolds controller nodes..."
 
@@ -19,7 +20,8 @@ i=0
 head -$number_of_nodes $filename |
 while read line; do
 	params=($line)
-	ROS_NAMESPACE="sphero_$i" rosrun sphero_formation reynolds_controller.py _init_vel_x:=${params[1]} _init_vel_y:=${params[2]} &
+	namespace=$robot_name$i
+	ROS_NAMESPACE="$namespace" rosrun sphero_formation reynolds_controller.py _init_vel_x:=${params[1]} _init_vel_y:=${params[2]} &
 	((i++))
 done
 

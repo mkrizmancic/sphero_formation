@@ -100,7 +100,7 @@ class Boid(object):
         self.crowd_radius = params['crowd_radius']
         self.search_radius = params['search_radius']
 
-        rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
+        # rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
         if DEBUG:
             rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
             rospy.logdebug('cohesion_factor:  %s', self.cohesion_factor)

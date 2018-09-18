@@ -2,7 +2,7 @@
 	<arg name="num" default="4"/> <!-- Number of Spheros in use -->
 
 	<!-- Start Initialization node: Get initial Spheros positions. --> 
-	<node pkg="sphero_formation" type="sphero_init.py" name="initialization" output="screnn">
+	<node pkg="sphero_formation" type="sphero_init.py" name="initialization" output="screen">
 		<param name="num_of_robots" type="int" value="$(arg num)"/>
 	</node>
 
@@ -10,5 +10,5 @@
 	<node pkg="sphero_formation" type="kalman_filter_launch.sh" name="Kalman_launcher" args="$(arg num)" output="screen"/>
 
 	<!-- Start rviz. -->
-	<node pkg="rviz" type="rviz"/>
+	<node pkg="rviz" type="rviz" name="rviz"/>
 </launch>

@@ -28,10 +28,10 @@ class ReynoldsController():
         # Compute agent's velocity and publish the command
         if self.params_set:
             ret_vel = self.agent.compute_velocity(my_agent, nearest_agents, obstacles)
-            cmd_vel = Twist()
-            cmd_vel.linear.x = int(ret_vel.linear.x * 100)
-            cmd_vel.linear.y = int(ret_vel.linear.y * 100)
-            self.pub.publish(cmd_vel)
+            # cmd_vel = Twist()
+            # cmd_vel.linear.x = int(ret_vel.linear.x * 100)
+            # cmd_vel.linear.y = int(ret_vel.linear.y * 100)
+            self.pub.publish(ret_vel)
 
     def param_callback(self, data):
         """Call method for updating flocking parameters from server."""
@@ -62,9 +62,7 @@ class ReynoldsController():
         self.ts.registerCallback(self.callback)
 
         # Main while loop.
-        rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            rate.sleep()
+        rospy.spin()
 
 
 if __name__ == '__main__':

@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import rospy
+import colorsys
+from random import random, randint, seed
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32, ColorRGBA
@@ -49,6 +51,9 @@ class ManControlNode():
             self.pub_rgb_led.publish(255.0, 255.0, 255.0, 1.0)
         elif data.buttons[8]:  # black: end button
             self.pub_rgb_led.publish(0.0, 0.0, 0.0, 1.0)
+        elif data.buttons[7]:
+            colors = colorsys.hsv_to_rgb(random(), 1.0, 1.0)
+            self.pub_rgb_led.publish(colors[0], colors[1], colors[2], 1.0)
 
         if data.buttons[4]:
             self.real_vel_stp += 0.1
@@ -89,6 +94,7 @@ class ManControlNode():
             self.display_true = True
         else:
             self.display_true = False
+        seed(randint(1, 1000))
 
         # Create a subscriber
         rospy.Subscriber("/joystick_input", Joy, self.joystick_callback, queue_size=1)

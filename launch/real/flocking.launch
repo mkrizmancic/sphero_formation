@@ -11,5 +11,5 @@
 	</node>
 
 	<!-- Start Reynolds controller nodes launcher. -->
-	<node pkg="sphero_formation" type="reynolds_launch.sh" name="Reynolds_launcher" args="$(arg num) $(arg filename)" output="screen"/>
+	<node pkg="sphero_formation" type="reynolds_launch.sh" name="Reynolds_launcher" args="$(arg num) $(arg filename) $(arg robot_name)" output="screen"/>
 </launch>
