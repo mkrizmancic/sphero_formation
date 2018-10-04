@@ -4,4 +4,9 @@
 
 	<!-- Start dynamic reconfigure node -->
 	<node pkg="sphero_formation" type="dynamic_reconfigure_node.py" name="dyn_reconf" output="screen"/>
+
+	<!-- A sphere model used to represent Sphero robots -->
+	<param name="robot_description" textfile="$(find sphero_formation)/resources/simple_ball.urdf" />
+
+	
 </launch>

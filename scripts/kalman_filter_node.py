@@ -33,11 +33,11 @@ class KalmanFilterNode():
 
         if X_measured is None:
             self.missing_counter += 1
-            if self.missing_counter % 10 == 0 and self.missing_counter <= 50:
+            if self.missing_counter % 10 == 0 and self.missing_counter <= 90:
                 rospy.logwarn(rospy.get_name() +
                               ": Marker mising for %d consecutive iterations.",
                               self.missing_counter)
-            elif self.missing_counter == 60:
+            elif self.missing_counter == 100:
                 rospy.logerr(rospy.get_name() + ": Lost tracking!!")
 
         return X_measured
@@ -60,7 +60,7 @@ class KalmanFilterNode():
 
         # Initialize class variables
         self.missing_counter = 0
-        self.sphero_radius = 0.06
+        self.sphero_radius = 0.05
         initial_pos = self.get_initial_position()
         rospy.loginfo(rospy.get_namespace() + '\n%s\n', initial_pos.position)
 
@@ -83,7 +83,7 @@ class KalmanFilterNode():
             br.sendTransform((pos.x, pos.y, pos.z),
                              (0, 0, 0, 1),
                              rospy.Time.now(),
-                             rospy.get_namespace(),
+                             rospy.get_namespace() + 'base_link',
                              'map')
             rate.sleep()
 

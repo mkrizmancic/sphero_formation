@@ -6,12 +6,18 @@ This module is used for utility and helper functions.
 
 Classes:
     Vector2: 2D vector class representation with x and y components
+    MarkerSet: convenience class for handling interactive Rviz markers
 """
 
+import rospy
 import math
+from visualization_msgs.msg import Marker, MarkerArray
+from std_msgs.msg import ColorRGBA
+from geometry_msgs.msg import Pose, Vector3, Quaternion
+from tf.transformations import quaternion_from_euler
 
 
-class Vector2():
+class Vector2(object):
     """
     2D vector class representation with x and y components.
 
@@ -113,3 +119,47 @@ def pose_dist(pose1, pose2):
     y2 = pose2.position.y
 
     return math.sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2))
+
+
+class MarkerSet(object):
+    """docstring for MarkerSet"""
+    def __init__(self):
+        self.visualization = MarkerArray()
+
+        keys = ['alignment', 'cohesion', 'separation', 'avoid', 'velocity']
+        self.markers = dict.fromkeys(keys)
+
+        marker_id = 0
+        for key in keys:
+            self.markers[key] = Marker()
+            self.markers[key].header.frame_id = rospy.get_namespace() + 'base_link'
+            self.markers[key].header.stamp = rospy.get_rostime()
+            self.markers[key].ns = rospy.get_namespace().split('/')[1]
+            self.markers[key].id = marker_id
+            self.markers[key].type = Marker.ARROW
+            self.markers[key].action = Marker.ADD
+            self.markers[key].pose = Pose()
+            self.markers[key].pose.position.z = 0.075
+            self.markers[key].lifetime = rospy.Duration(0)
+            self.markers[key].frame_locked = True
+            marker_id += 1
+
+        self.markers['alignment'].color = ColorRGBA(0, 0, 1, 1)   # blue
+        self.markers['cohesion'].color = ColorRGBA(0, 1, 0, 1)    # green
+        self.markers['separation'].color = ColorRGBA(1, 0, 0, 1)  # red
+        self.markers['avoid'].color = ColorRGBA(1, 1, 0, 1)       # yellow
+        self.markers['velocity'].color = ColorRGBA(1, 1, 1, 1)    # white
+
+    def update_data(self, values):
+        if values is not None:
+            for key in self.markers.keys():
+                data = values[key]
+                angle = Quaternion(*quaternion_from_euler(0, 0, math.radians(data.arg())))
+                scale = Vector3(data.norm(), 0.02, 0.02)
+
+                self.markers[key].header.stamp = rospy.get_rostime()
+                self.markers[key].pose.orientation = angle
+                self.markers[key].scale = scale
+
+            self.visualization.markers = self.markers.values()
+        return self.visualization

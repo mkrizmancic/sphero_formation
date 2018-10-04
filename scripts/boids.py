@@ -4,10 +4,22 @@
 from __future__ import print_function
 
 import rospy
+import numpy as np
 from geometry_msgs.msg import Twist
 from util import Vector2
 
 DEBUG = False
+
+
+class MAFilter(object):
+
+    def __init__(self, win_length):
+        self.window = np.array([np.nan] * win_length)
+
+    def step(self, value):
+        self.window[:-1] = self.window[1:]
+        self.window[-1] = value
+        return np.nanmean(self.window)
 
 
 def get_agent_velocity(agent):
@@ -87,6 +99,13 @@ class Boid(object):
         self.initial_velocity = Twist()
         self.initial_velocity.linear.x = initial_velocity_x
         self.initial_velocity.linear.y = initial_velocity_y
+
+        self.data_list = []
+        self.x_filter = MAFilter(3)
+        self.y_filter = MAFilter(3)
+
+        keys = ['alignment', 'cohesion', 'separation', 'avoid', 'velocity']
+        self.viz_components = dict.fromkeys(keys)
 
     def update_parameters(self, params):
         """Save Reynolds controller parameters in class variables."""
@@ -198,13 +217,13 @@ class Boid(object):
             self.wait_count -= 1
             rospy.logdebug("wait " + '{}'.format(self.wait_count))
             rospy.logdebug("velocity:\n%s", Twist().linear)
-            return Twist()
+            return Twist(), None
 
         elif self.start_count > 0:
             self.start_count -= 1
             rospy.logdebug("start " + '{}'.format(self.start_count))
             rospy.logdebug("velocity:\n%s", self.initial_velocity.linear)
-            return self.initial_velocity
+            return self.initial_velocity, None
 
         else:
             force = Vector2()
@@ -245,8 +264,22 @@ class Boid(object):
                 rospy.logdebug("velocity:     %s", self.velocity)
                 rospy.logdebug("\n")
 
+            filtered = Vector2()
+            filtered.x = self.x_filter.step(self.velocity.x)
+            filtered.y = self.y_filter.step(self.velocity.y)
+
+            self.data_list.append([self.velocity.norm(), self.velocity.arg(),
+                                   filtered.norm(), filtered.arg()])
+
             # Return the the velocity as Twist message
             vel = Twist()
             vel.linear.x = self.velocity.x
             vel.linear.y = self.velocity.y
-            return vel
+
+            # Pack all components for Rviz visualization
+            self.viz_components['alignment'] = alignment
+            self.viz_components['cohesion'] = cohesion
+            self.viz_components['separation'] = separation
+            self.viz_components['avoid'] = avoid
+            self.viz_components['velocity'] = self.velocity
+            return vel, self.viz_components
