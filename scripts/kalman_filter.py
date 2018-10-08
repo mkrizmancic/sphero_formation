@@ -5,8 +5,11 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 
 
-class KalmanFilter():
+class KalmanFilter(object):
+    """Class implementation of Kalman filter."""
+
     def __init__(self, position, velocity=Twist()):
+        """Initialize class variables and set initial conditions."""
         T = 0.01  # step time
         self.X0 = self.get_numpy_state(position, velocity)
         self.P0 = 0.001 * np.eye(4)
@@ -33,7 +36,7 @@ class KalmanFilter():
         return state.T
 
     def get_used_state(self, np_state):
-        """Convert from numpy array to type used elswhere (here: ROS msg)."""
+        """Convert from numpy array to type used elsewhere (here: ROS msg)."""
         time = rospy.Time.now()
         msg = Odometry()
         msg.header.stamp = time
@@ -46,6 +49,8 @@ class KalmanFilter():
 
     def predict(self, u):
         """
+        Kalman's prediction phase.
+
         Args:
             u: input vector
         """
@@ -59,6 +64,8 @@ class KalmanFilter():
 
     def update(self, Xm):
         """
+        Kalman's update phase.
+
         Args:
             Xm: measured state vector
         """

@@ -23,6 +23,7 @@ class DynReconf():
         # Start dynamic reconfigure server
         Server(ReynoldsConfig, self.callback)
 
+        # Keep program from exiting
         rospy.spin()
 
     def callback(self, config, level):

@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Broadcast tf data during simulation.
+
+tf data is produced from position of each robot received on Odometry messages.
+It is used to visualize simulated robots in Rviz.
+"""
+
 import rospy
 import tf2_ros
 import geometry_msgs.msg
@@ -38,7 +45,7 @@ if __name__ == '__main__':
     listener = tf2_ros.TransformListener(tfBuffer)
     broadcaster = tf2_ros.TransformBroadcaster()
 
-    num_of_robots = rospy.get_param("~num_of_robots")
+    num_of_robots = rospy.get_param("/num_of_robots")
     [rospy.Subscriber("/robot_{}/odom".format(i), Odometry, callback) for i in range(num_of_robots)]
 
     rospy.spin()

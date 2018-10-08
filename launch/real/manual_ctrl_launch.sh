@@ -1,7 +1,7 @@
 #!/bin/bash
 
-number_of_nodes=$1
-sens=$2
+number_of_nodes=$(rosparam get /num_of_robots)
+sens=$1
 echo "Launching $number_of_nodes Manual control nodes..."
 
 trap 'killall' INT

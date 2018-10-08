@@ -1,8 +1,9 @@
 #!/bin/bash
 
-number_of_nodes=$1
-filename="$2" # config file with initial velocities for each Sphero
-robot_name="$3_" # robot name
+number_of_nodes=$(rosparam get /num_of_robots)
+filename="$1" # config file with initial velocities for each Sphero
+robot_name="$2_" # robot name
+
 
 echo "Launching $number_of_nodes Reynolds controller nodes..."
 

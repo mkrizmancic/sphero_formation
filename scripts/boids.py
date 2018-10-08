@@ -1,24 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 import rospy
 import numpy as np
 from geometry_msgs.msg import Twist
 from util import Vector2
 
-DEBUG = False
-
 
 class MAFilter(object):
-
+    """Implementation of a moving average filter with variable window length."""
     def __init__(self, win_length):
+        """
+        Initialize empty window for averaging.
+
+        Args:
+            win_length: length of a window
+        """
+        # Window is initialized with NaNs so that the average would be correct
+        # during the first few steps while the window is not yet full
         self.window = np.array([np.nan] * win_length)
 
     def step(self, value):
+        """
+        Add new value at the end of the window, shift older values to the left
+        and return the average.
+        """
         self.window[:-1] = self.window[1:]
         self.window[-1] = value
+        # np.nanmean returns mean value while ignoring NaNs
         return np.nanmean(self.window)
 
 
@@ -88,22 +97,28 @@ class Boid(object):
             Compute total velocity based on all components
     """
 
-    def __init__(self, initial_velocity_x, initial_velocity_y):
+    def __init__(self, initial_velocity_x, initial_velocity_y, wait_count, start_count):
         """Create an empty boid and update parameters."""
         self.position = Vector2()
         self.velocity = Vector2()
-        self.mass = 0.18  # Mass of Sphero robot in kilograms
-        self.start_count = 0
-        self.wait_count = 30
+        self.mass = 0.18  # mass of Sphero robot in kilograms
+        self.wait_count = wait_count    # waiting time before starting
+        self.start_count = start_count  # time during initial velocity is send
 
+        # Set initial velocity
         self.initial_velocity = Twist()
         self.initial_velocity.linear.x = initial_velocity_x
         self.initial_velocity.linear.y = initial_velocity_y
 
+        # Create an empty list for storing velocity data
+        # Initialize moving average filters
         self.data_list = []
         self.x_filter = MAFilter(3)
         self.y_filter = MAFilter(3)
 
+        # This dictionary holds values of each flocking components and is used
+        # to pass them to the visualization markers publisher
+        # Make sure these keys are the same as the ones in `util.py`
         keys = ['alignment', 'cohesion', 'separation', 'avoid', 'velocity']
         self.viz_components = dict.fromkeys(keys)
 
@@ -119,17 +134,16 @@ class Boid(object):
         self.crowd_radius = params['crowd_radius']
         self.search_radius = params['search_radius']
 
-        # rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
-        if DEBUG:
-            rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
-            rospy.logdebug('cohesion_factor:  %s', self.cohesion_factor)
-            rospy.logdebug('separation_factor:  %s', self.separation_factor)
-            rospy.logdebug('avoid_factor:  %s', self.avoid_factor)
-            rospy.logdebug('max_speed:  %s', self.max_speed)
-            rospy.logdebug('max_force:  %s', self.max_force)
-            rospy.logdebug('friction:  %s', self.friction)
-            rospy.logdebug('crowd_radius:  %s', self.crowd_radius)
-            rospy.logdebug('search_radius:  %s', self.search_radius)
+        rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
+        rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
+        rospy.logdebug('cohesion_factor:  %s', self.cohesion_factor)
+        rospy.logdebug('separation_factor:  %s', self.separation_factor)
+        rospy.logdebug('avoid_factor:  %s', self.avoid_factor)
+        rospy.logdebug('max_speed:  %s', self.max_speed)
+        rospy.logdebug('max_force:  %s', self.max_force)
+        rospy.logdebug('friction:  %s', self.friction)
+        rospy.logdebug('crowd_radius:  %s', self.crowd_radius)
+        rospy.logdebug('search_radius:  %s', self.search_radius)
 
     def compute_alignment(self, nearest_agents):
         """Return alignment component."""
@@ -171,7 +185,7 @@ class Boid(object):
         direction = Vector2()
         steer = Vector2()
         count = 0
-        # Find mean position of neighboring agents
+
         for agent in nearest_agents:
             agent_position = get_agent_position(agent)
             if agent_position.norm() < self.crowd_radius:
@@ -183,7 +197,6 @@ class Boid(object):
                 agent_position /= d
                 direction += agent_position
 
-        # Steer away from calculated mean position
         if count:
             direction.set_mag(self.max_speed)
             steer = direction - self.velocity
@@ -194,7 +207,7 @@ class Boid(object):
         """Return avoid component."""
         direction = Vector2()
         steer = Vector2()
-        # Find mean position of obstacles
+
         for obst in avoids:
             obst_position = get_obst_position(obst)
             d = obst_position.norm()
@@ -204,7 +217,6 @@ class Boid(object):
             obst_position /= d
             direction += obst_position
 
-        # Steer away from calculated mean position
         if avoids:
             direction.set_mag(self.max_speed)
             steer = direction - self.velocity
@@ -213,18 +225,22 @@ class Boid(object):
 
     def compute_velocity(self, my_agent, nearest_agents, avoids):
         """Compute total velocity based on all components."""
+
+        # While waiting to start, send zero velocity and decrease counter
         if self.wait_count > 0:
             self.wait_count -= 1
             rospy.logdebug("wait " + '{}'.format(self.wait_count))
             rospy.logdebug("velocity:\n%s", Twist().linear)
             return Twist(), None
 
+        # Send initial velocity and decrease counter
         elif self.start_count > 0:
             self.start_count -= 1
             rospy.logdebug("start " + '{}'.format(self.start_count))
             rospy.logdebug("velocity:\n%s", self.initial_velocity.linear)
             return self.initial_velocity, None
 
+        # Normal operation, velocity is determined using Reynolds' rules
         else:
             force = Vector2()
             self.velocity = get_agent_velocity(my_agent)
@@ -235,11 +251,10 @@ class Boid(object):
             separation = self.compute_separation(nearest_agents)
             avoid = self.compute_avoids(avoids)
 
-            if DEBUG:
-                rospy.logdebug("alignment:    %s", alignment)
-                rospy.logdebug("cohesion:     %s", cohesion)
-                rospy.logdebug("separation:   %s", separation)
-                rospy.logdebug("avoid:        %s", avoid)
+            rospy.logdebug("alignment:    %s", alignment)
+            rospy.logdebug("cohesion:     %s", cohesion)
+            rospy.logdebug("separation:   %s", separation)
+            rospy.logdebug("avoid:        %s", avoid)
 
             # Add components together and limit the output
             force += alignment * self.alignment_factor
@@ -258,16 +273,17 @@ class Boid(object):
             self.velocity += acceleration / 10
             self.velocity.limit(self.max_speed)
 
-            if DEBUG:
-                rospy.logdebug("force:        %s", force)
-                rospy.logdebug("acceleration: %s", acceleration)
-                rospy.logdebug("velocity:     %s", self.velocity)
-                rospy.logdebug("\n")
+            rospy.logdebug("force:        %s", force)
+            rospy.logdebug("acceleration: %s", acceleration)
+            rospy.logdebug("velocity:     %s", self.velocity)
+            rospy.logdebug("\n")
 
+            # Apply moving average filter on calculated velocity
             filtered = Vector2()
             filtered.x = self.x_filter.step(self.velocity.x)
             filtered.y = self.y_filter.step(self.velocity.y)
 
+            # Store raw and filtered velocity in a list for later analysis
             self.data_list.append([self.velocity.norm(), self.velocity.arg(),
                                    filtered.norm(), filtered.arg()])
 

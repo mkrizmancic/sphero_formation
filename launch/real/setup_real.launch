@@ -1,6 +1,5 @@
 <launch>
 	<!-- Set the arguments. -->
-	<arg name="num" default="4"/>  <!-- Number of Spheros in use-->
 	<arg name="sens" default="0.2"/> <!-- Sensitivity for the joystick [0.0 - 1.0] -->
 	<arg name="map_name" default="across"/>  <!-- Name of the map -->
 	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
@@ -25,5 +24,5 @@
 	</node>
 
 	<!-- Start manual control nodes launcher. -->
-	<node pkg="sphero_formation" type="manual_ctrl_launch.sh" name="Manual_launcher" args="$(arg num) $(arg sens)" output="screen"/>
+	<node pkg="sphero_formation" type="manual_ctrl_launch.sh" name="manual_launcher" args="$(arg sens)" output="screen"/>
 </launch>

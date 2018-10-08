@@ -1,6 +1,6 @@
 #!/bin/bash
 
-number_of_nodes=$1
+number_of_nodes=$(rosparam get /num_of_robots)
 
 echo "Launching $number_of_nodes Kalman filter nodes..."
 

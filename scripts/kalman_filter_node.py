@@ -1,17 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import tf
 import rospy
 from geometry_msgs.msg import PoseArray
 from nav_msgs.msg import Odometry
+
 from kalman_filter import KalmanFilter
 from util import pose_dist
 from sphero_formation.srv import *
-import tf
 
 
-class KalmanFilterNode():
+class KalmanFilterNode(object):
+    """
+    ROS node implementation of Kalman filter.
+
+    This node subscribes to a list of all existing Sphero's positions
+    broadcast from OptiTrack system, associates one of them to the Sphero in
+    the same namespace and uses Kalman filter to output steady position and
+    velocity data for other nodes.
+    """
     def get_initial_position(self):
+        """Calls service which returns Sphero's initial position."""
         rospy.wait_for_service('/return_initials')
         try:
             get_initials = rospy.ServiceProxy('/return_initials', ReturnInitials)
@@ -21,32 +31,44 @@ class KalmanFilterNode():
             rospy.logerr(rospy.get_name() + ": Service call failed: %s", e)
 
     def associate(self, data):
+        """
+        Associate Sphero with its position and return it.
+
+        Positions of all Spheros are determined using OptiTrack system and sent
+        via mocap_node. It is currently impossible to label OptiTrack markers
+        with some ID. Positions of all markers arrive in an unsorted list. We
+        must associate each of the positions in list with a Sphero. To do this,
+        we are looking which of the positions in the list is less than a Sphero
+        radius away from the last available Sphero's position estimation. We
+        assume that Sphero couldn't have traveled more than this distance
+        between two consecutive position updates. OptiTrack is set to broadcast
+        positions 100 times per second.
+        """
         X_measured = None
-        # found = False
         for pose in data.poses:
             if pose_dist(self.X_est.pose.pose, pose) < self.sphero_radius:
                 X_measured = pose
                 self.missing_counter = 0
-                # if found:
-                #     rospy.logwarn("Multiple markers found for " + rospy.get_name())
-                # found = True
 
         if X_measured is None:
             self.missing_counter += 1
             if self.missing_counter % 10 == 0 and self.missing_counter <= 90:
                 rospy.logwarn(rospy.get_name() +
-                              ": Marker mising for %d consecutive iterations.",
+                              ": Marker missing for %d consecutive iterations.",
                               self.missing_counter)
             elif self.missing_counter == 100:
                 rospy.logerr(rospy.get_name() + ": Lost tracking!!")
 
         return X_measured
 
-    def input_callback(self, data):
-        pass
-
     def sensor_callback(self, data):
+        """Process received positions data and return Kalman estimation."""
+
+        # Get measurement
         X_measured = self.associate(data)
+
+        # If measurement data is not available, use only prediction step
+        # Else, use prediction and update step
         if X_measured is None:
             self.X_est = self.filter.predict(u=None)
         else:
@@ -59,17 +81,17 @@ class KalmanFilterNode():
         pub = rospy.Publisher('odom', Odometry, queue_size=1)
 
         # Initialize class variables
-        self.missing_counter = 0
-        self.sphero_radius = 0.05
-        initial_pos = self.get_initial_position()
+        self.missing_counter = 0   # Counts iterations with missing marker information
+        self.sphero_radius = 0.05  # Sphero radius in meters
+        initial_pos = self.get_initial_position()  # Get initial position
         rospy.loginfo(rospy.get_namespace() + '\n%s\n', initial_pos.position)
 
+        # Initialize Kalman filter and estimation
         self.filter = KalmanFilter(initial_pos)
         self.X_est = Odometry()
         self.X_est.pose.pose = initial_pos
 
         # Create subscribers
-        # rospy.Subscriber('cmd_vel', Twist, self.input_callback, queue_size=1)
         rospy.Subscriber('/mocap_node/locations', PoseArray, self.sensor_callback, queue_size=1)
 
         # Create tf broadcaster

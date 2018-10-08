@@ -7,12 +7,30 @@ from std_msgs.msg import ColorRGBA
 from sphero_formation.srv import *
 
 
-class InitializationNode():
+class InitializationNode(object):
+    """
+    ROS node responsible for providing initial Spheros positions.
+
+    OptiTrack system is used to broadcast position of each Sphero. However,
+    positions are stored in an unsorted list as it is impossible to label
+    OptiTrack markers with IDs. This node starts a procedure to identify each
+    Sphero and its initial position. Kalman filter node is later used to
+    maintain this "one-on-one" relation and to provide positions. In order to
+    identify a Sphero and its initial position, only one position can be present
+    in mentioned unsorted list. Identification process consists of turning
+    Sphero's LEDs on and off one by one while knowing which Sphero is the
+    current one and storing the position in a dictionary.
+    """
 
     def callback(self, data):
+        """Store position data in class variable."""
+        # `data` contains a list of poses. Store only the first one
+        # This assumes that only one Sphero is lit up so its position is the
+        # first and only one in the list
         self.current_position = data.poses[0]
 
     def handle_init(self, req):
+        """Service handler. Return initial position upon request."""
         return_value = self.initial_positions[req.key]
         return ReturnInitialsResponse(return_value)
 
@@ -20,7 +38,7 @@ class InitializationNode():
         """Initialize agent instance, create subscribers and publishers."""
 
         # Get the number of agents
-        self.num_robots = rospy.get_param("~num_of_robots", 4)
+        self.num_robots = rospy.get_param("/num_of_robots", 4)
 
         # Create publishers for sending color commands
         pub_keys = ['/sphero_{}/'.format(i) for i in range(self.num_robots)]
@@ -33,9 +51,9 @@ class InitializationNode():
         self.current_position = None
 
         # Create a subscriber
-        rospy.Subscriber('/mocap_node/locations', PoseArray, self.callback, queue_size=1)
+        rospy.Subscriber('/mocap_node/positions', PoseArray, self.callback, queue_size=1)
 
-        # Main while loop.
+        # Start identification process
         for key in self.pubs.keys():  # For each Sphero..
             rospy.sleep(1)
             rospy.loginfo('Light up ' + key)
@@ -68,6 +86,7 @@ class InitializationNode():
         # Create a service server
         rospy.Service('return_initials', ReturnInitials, self.handle_init)
 
+        # Keep program from exiting
         rospy.spin()
 
 

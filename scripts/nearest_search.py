@@ -17,7 +17,7 @@ def get_distance(a, b):
     return math.sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2))
 
 
-class NearestSearch():
+class NearestSearch(object):
     """
     Node that provides information about nearest flockmates and obstacles.
 
@@ -45,7 +45,8 @@ class NearestSearch():
     def pos_to_index(self, x_real, y_real):
         """Return list (map) indices for given real position coordinates."""
         col = (x_real - self.map_origin.x) / self.map_resolution
-        row = (self.map_origin.y + self.map_height * self.map_resolution - y_real) / self.map_resolution
+        row = (self.map_origin.y + self.map_height *
+               self.map_resolution - y_real) / self.map_resolution
         return int(col), int(row)
 
     def index_to_pos(self, row, col):
@@ -55,7 +56,7 @@ class NearestSearch():
         return x_real, y_real
 
     def param_callback(self, data):
-        """Update search parametars from server."""
+        """Update search parameters from server."""
         while not rospy.has_param('/dyn_reconf/search_radius'):
             rospy.sleep(0.1)
 
@@ -129,7 +130,7 @@ class NearestSearch():
         """Create subscribers and publishers."""
 
         # Get the number of agents
-        self.num_agents = rospy.get_param("~num_of_robots")
+        self.num_agents = rospy.get_param("/num_of_robots")
         robot_name = rospy.get_param("~robot_name")
 
         # Create publishers for commands
@@ -156,7 +157,7 @@ class NearestSearch():
         self.ts = mf.ApproximateTimeSynchronizer(subs, 10, 0.1)
         self.ts.registerCallback(self.robot_callback)
 
-        # Main while loop.
+        # Keep program from exiting
         rospy.spin()
 
 

@@ -7,6 +7,9 @@ This module is used for utility and helper functions.
 Classes:
     Vector2: 2D vector class representation with x and y components
     MarkerSet: convenience class for handling interactive Rviz markers
+
+Function:
+    pose_dist: calculate distance between two ROS Pose type variables
 """
 
 import rospy
@@ -113,6 +116,7 @@ class Vector2(object):
 
 
 def pose_dist(pose1, pose2):
+    """Return Euclidean distance between two ROS poses."""
     x1 = pose1.position.x
     y1 = pose1.position.y
     x2 = pose2.position.x
@@ -122,10 +126,17 @@ def pose_dist(pose1, pose2):
 
 
 class MarkerSet(object):
-    """docstring for MarkerSet"""
+    """
+    Convenience class for handling Rviz markers.
+
+    Markers are used to visualize each of the Reynolds' rules component in Rviz.
+    Markers are set to arrows to represent force and velocity vectors.
+    """
     def __init__(self):
+        """Initialize class and set common marker properties."""
         self.visualization = MarkerArray()
 
+        # Make sure these keys are the same as the ones in `boids.py`
         keys = ['alignment', 'cohesion', 'separation', 'avoid', 'velocity']
         self.markers = dict.fromkeys(keys)
 
@@ -139,11 +150,12 @@ class MarkerSet(object):
             self.markers[key].type = Marker.ARROW
             self.markers[key].action = Marker.ADD
             self.markers[key].pose = Pose()
-            self.markers[key].pose.position.z = 0.075
+            self.markers[key].pose.position.z = 0.075  # Sphero radius
             self.markers[key].lifetime = rospy.Duration(0)
             self.markers[key].frame_locked = True
             marker_id += 1
 
+        # Set colors of each marker
         self.markers['alignment'].color = ColorRGBA(0, 0, 1, 1)   # blue
         self.markers['cohesion'].color = ColorRGBA(0, 1, 0, 1)    # green
         self.markers['separation'].color = ColorRGBA(1, 0, 0, 1)  # red
@@ -151,6 +163,12 @@ class MarkerSet(object):
         self.markers['velocity'].color = ColorRGBA(1, 1, 1, 1)    # white
 
     def update_data(self, values):
+        """
+        Set scale and direction of markers.
+
+        Args:
+            values (dict): Holds norm and arg data for each component
+        """
         if values is not None:
             for key in self.markers.keys():
                 data = values[key]

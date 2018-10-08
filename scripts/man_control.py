@@ -9,31 +9,62 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32, ColorRGBA
 
 
-class ManControlNode():
+class ManControlNode(object):
+    """
+    ROS node for manually controlling Spheros.
+
+    Node subscribes to joystick input data and publishes commands to Sphero
+    driver. `joystick_callback function gets called each time any of the
+    joystick buttons or axes change states.
+    """
+
     def joystick_callback(self, data):
         """Receive inputs from joystick and convert them to control signals."""
 
-        if data.buttons[10]:
+        # Joystick R3 button - enable/disable manual control
+        if data.buttons[11]:
             if self.enabled:
                 self.enabled = False
-                if self.display_true: rospy.loginfo("Manual control disabled")
+                if self.display_true:
+                    rospy.loginfo("Manual control disabled")
             else:
                 self.enabled = True
-                if self.display_true: rospy.loginfo("Manual control enabled")
+                if self.display_true:
+                    rospy.loginfo("Manual control enabled")
 
-        if data.buttons[5]:
+        # Joystick L3 button - switch between analog and digital driving mode
+        if data.buttons[10]:
             if self.driving_mode == 'analog':
                 self.driving_mode = 'digital'
-                if self.display_true: rospy.loginfo("Driving mode: digital")
+                if self.display_true:
+                    rospy.loginfo("Driving mode: digital")
             else:
                 self.driving_mode = 'analog'
-                if self.display_true: rospy.loginfo("Driving mode: analog")
+                if self.display_true:
+                    rospy.loginfo("Driving mode: analog")
 
+        # Joystick L1 button - increase digital mode speed set point
+        if data.buttons[4]:
+            self.real_vel_stp += 0.1
+            if self.real_vel_stp > 3:
+                self.real_vel_stp = 3
+            if self.display_true:
+                rospy.loginfo("Real speed set point: %.1f", self.real_vel_stp)
+        # Joystick L2 button - decrease digital mode speed set point
+        elif data.buttons[6]:
+            self.real_vel_stp -= 0.1
+            if self.real_vel_stp < 0:
+                self.real_vel_stp = 0
+            if self.display_true:
+                rospy.loginfo("Real speed set point: %.1f", self.real_vel_stp)
+
+        # For analog driving - use left stick
         if self.driving_mode == 'analog':
-            # Sphero driver prima vrijednosti brzine u rasponu 0-255
+            # Sphero driver accepts speeds in range 0-255
             self.cmd_vel.linear.y = int(data.axes[1] * 255 * self.sensitivity)
             self.cmd_vel.linear.x = -int(data.axes[0] * 255 * self.sensitivity)
 
+        # For digital driving - use hat switch
         elif self.driving_mode == 'digital':
             self.cmd_vel.linear.y = int(data.axes[5] * self.real_vel_stp * 100)
             self.cmd_vel.linear.x = -int(data.axes[4] * self.real_vel_stp * 100)
@@ -51,20 +82,9 @@ class ManControlNode():
             self.pub_rgb_led.publish(255.0, 255.0, 255.0, 1.0)
         elif data.buttons[8]:  # black: end button
             self.pub_rgb_led.publish(0.0, 0.0, 0.0, 1.0)
-        elif data.buttons[7]:
+        elif data.buttons[5]:  # random color for each Sphero: button R1
             colors = colorsys.hsv_to_rgb(random(), 1.0, 1.0)
             self.pub_rgb_led.publish(colors[0], colors[1], colors[2], 1.0)
-
-        if data.buttons[4]:
-            self.real_vel_stp += 0.1
-            if self.real_vel_stp > 3:
-                self.real_vel_stp = 3
-            if self.display_true: rospy.loginfo("Real speed setpoint: %.1f", self.real_vel_stp)
-        elif data.buttons[6]:
-            self.real_vel_stp -= 0.1
-            if self.real_vel_stp < 0:
-                self.real_vel_stp = 0
-            if self.display_true: rospy.loginfo("Real speed setpoint: %.1f", self.real_vel_stp)
 
         # # Hold L1 and select heading using right stick
         # if data.buttons[4] == 1:
@@ -78,7 +98,9 @@ class ManControlNode():
         #     self.pub_stab.publish(0)  # enable stabilization
 
     def __init__(self):
-        # Create a publisher for commands
+        """Create subscribers and publishers and initialize class variables."""
+
+        # Create publishers for commands
         self.pub_vel = rospy.Publisher('cmd_vel', Twist, queue_size=1)
         # self.pub_hdg = rospy.Publisher('set_heading', Float32, queue_size=1)
         # self.pub_b_led = rospy.Publisher('set_back_led', Float32, queue_size=1)
@@ -86,14 +108,21 @@ class ManControlNode():
         # self.pub_stab = rospy.Publisher('disable_stabilization', Bool, queue_size=1)
 
         # Set class variables
-        self.sensitivity = rospy.get_param('~sensitivity', 0.2)
+        self.sensitivity = rospy.get_param('~sensitivity', 0.2)  # left stick sensitivity
         self.real_vel_stp = 0.5
         self.driving_mode = 'analog'
         self.enabled = False
+
+        # Work-around for displaying info messages. Currently, each Sphero has
+        # its own manual control node even though they all get same commands.
+        # Because of that, multiple info messages would appear on screen,
+        # one for each Sphero. This work-around ensures that only one message
+        # appears.
         if rospy.get_namespace() == '/sphero_0/':
             self.display_true = True
         else:
             self.display_true = False
+
         seed(randint(1, 1000))
 
         # Create a subscriber
