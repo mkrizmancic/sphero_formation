@@ -4,24 +4,24 @@
       <mass value="1.0" />
       <!-- center of mass (com) is defined w.r.t. link local coordinate system -->
       <!-- give a little y-offset to make the top precess -->
-      <origin xyz="0 0 0.075" /> 
+      <origin xyz="0 0 0.036" /> 
       <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="1.0"  iyz="0.0"  izz="1.0" />
     </inertial>
     <visual>
       <!-- visual origin is defined w.r.t. link local coordinate system -->
-      <origin xyz="0 0 0.075" rpy="0 0 0" />
+      <origin xyz="0 0 0.036" rpy="0 0 0" />
       <geometry>
-        <sphere radius="0.075"/>
+        <sphere radius="0.036"/>
       </geometry>
       <material name="White">
-        <color rgba="1.0 1.0 1.0 1.0"/>
+        <color rgba="1.0 1.0 1.0 0.7"/>
       </material>
     </visual>
     <collision>
       <!-- collision origin is defined w.r.t. link local coordinate system -->
-      <origin xyz="0 0 0.075" rpy="0 0 0" />
+      <origin xyz="0 0 0.036" rpy="0 0 0" />
       <geometry>
-        <sphere radius="0.075"/>
+        <sphere radius="0.036"/>
       </geometry>
     </collision>
   </link>

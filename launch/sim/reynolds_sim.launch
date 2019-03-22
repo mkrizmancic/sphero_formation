@@ -2,14 +2,17 @@
 	<!-- Set the arguments. -->
 	<arg name="robot_name" default="robot"/>
 
+	<!-- Set true/false to enable/disable debug mode -->
+	<param name="debug_set" type="boolean" value="true"/>
+
 	<!-- Config file with initial velocities for each Sphero -->
 	<arg name="filename" default="$(find sphero_formation)/cfg/sphero_init_vel.cfg"/>
 
 	<!-- Start Reynolds controller nodes launcher. -->
 	<node pkg="sphero_formation" type="reynolds_launch.sh" name="reynolds_launcher" args="$(arg filename) $(arg robot_name)" output="screen">
-		<param name="wait_count" type="int" value="30"/>
-		<param name="start_count" type="int" value="10"/>
-		<param name="run_type" type="string" value="sim"/>	
+		<param name="wait_count" type="int" value="0"/>
+		<param name="start_count" type="int" value="0"/>
+		<param name="run_type" type="string" value="sim"/>
 	</node>
 
 	<!-- Start nearest_search node: search for other Spheros in range. -->
@@ -19,4 +22,7 @@
 
 	<!-- Start simulation_tf node: provide tf transforms for simulation-->
 	<node pkg="sphero_formation" type="simulation_tf.py" name="tf_server"/>
+
+	<!-- Record a bag for debug purposes -->
+	<node pkg="rosbag" type="record" name="rosbag_record" args="-O $(find sphero_formation)/sphero_sim_vel.bag --duration=120 /robot_0/cmd_vel /robot_0/odom" output="screen"/>
 </launch>

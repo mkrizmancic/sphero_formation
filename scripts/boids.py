@@ -159,6 +159,7 @@ class Boid(object):
             mean_velocity.set_mag(self.max_speed)
             steer = mean_velocity - self.velocity
             steer.limit(self.max_force)
+        rospy.logdebug("alignment*:   %s", mean_velocity)
         return steer
 
     def compute_cohesion(self, nearest_agents):
@@ -178,6 +179,7 @@ class Boid(object):
             direction.set_mag(self.max_speed * (d / self.search_radius))
             steer = direction - self.velocity
             steer.limit(self.max_force)
+        rospy.logdebug("cohesion*:    %s", direction)
         return steer
 
     def compute_separation(self, nearest_agents):
@@ -188,9 +190,9 @@ class Boid(object):
 
         for agent in nearest_agents:
             agent_position = get_agent_position(agent)
-            if agent_position.norm() < self.crowd_radius:
+            d = agent_position.norm()
+            if d < self.crowd_radius:
                 count += 1
-                d = agent_position.norm()
                 agent_position *= -1  # Make vector point away from other agent
                 agent_position.normalize()  # Normalize to get only direction
                 # Vector's magnitude is reciprocal to distance between agents
@@ -201,6 +203,7 @@ class Boid(object):
             direction.set_mag(self.max_speed)
             steer = direction - self.velocity
             steer.limit(self.max_force)
+        rospy.logdebug("separation*:  %s", direction)
         return steer
 
     def compute_avoids(self, avoids):
@@ -221,6 +224,7 @@ class Boid(object):
             direction.set_mag(self.max_speed)
             steer = direction - self.velocity
             steer.limit(self.max_force)
+        rospy.logdebug("avoids*:      %s", direction)
         return steer
 
     def compute_velocity(self, my_agent, nearest_agents, avoids):
@@ -244,6 +248,8 @@ class Boid(object):
         else:
             force = Vector2()
             self.velocity = get_agent_velocity(my_agent)
+
+            rospy.logdebug("old_velocity: %s", self.velocity)
 
             # Compute all the components
             alignment = self.compute_alignment(nearest_agents)
@@ -275,8 +281,7 @@ class Boid(object):
 
             rospy.logdebug("force:        %s", force)
             rospy.logdebug("acceleration: %s", acceleration)
-            rospy.logdebug("velocity:     %s", self.velocity)
-            rospy.logdebug("\n")
+            rospy.logdebug("velocity:     %s\n", self.velocity)
 
             # Apply moving average filter on calculated velocity
             filtered = Vector2()
@@ -293,9 +298,10 @@ class Boid(object):
             vel.linear.y = self.velocity.y
 
             # Pack all components for Rviz visualization
-            self.viz_components['alignment'] = alignment
-            self.viz_components['cohesion'] = cohesion
-            self.viz_components['separation'] = separation
-            self.viz_components['avoid'] = avoid
+            self.viz_components['alignment'] = alignment * self.alignment_factor
+            self.viz_components['cohesion'] = cohesion * self.cohesion_factor
+            self.viz_components['separation'] = separation * self.separation_factor
+            self.viz_components['avoid'] = avoid * self.avoid_factor
+            self.viz_components['acceleration'] = acceleration / 10
             self.viz_components['velocity'] = self.velocity
             return vel, self.viz_components

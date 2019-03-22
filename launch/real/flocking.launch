@@ -4,6 +4,9 @@
 	<!-- Config file with initial velocities for each Sphero -->
 	<arg name="filename" default="$(find sphero_formation)/cfg/sphero_init_vel.cfg"/>
 
+	<!-- Set true/false to enable/disable debug mode -->
+	<param name="debug_set" type="boolean" value="true"/>
+
 	<!-- Start nearest_search node: search for other Spheros in range. -->
 	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen">
 		<param name="robot_name" type="string" value="$(arg robot_name)"/>

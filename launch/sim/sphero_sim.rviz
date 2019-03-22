@@ -55,8 +55,6 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        map:
-          Value: true
         robot_0/base_footprint:
           Value: false
         robot_0/base_link:
@@ -87,23 +85,7 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          robot_0/odom:
-            robot_0/base_footprint:
-              robot_0/base_link:
-                {}
-          robot_1/odom:
-            robot_1/base_footprint:
-              robot_1/base_link:
-                {}
-          robot_2/odom:
-            robot_2/base_footprint:
-              robot_2/base_link:
-                {}
-          robot_3/odom:
-            robot_3/base_footprint:
-              robot_3/base_link:
-                {}
+        {}
       Update Interval: 0
       Value: true
     - Alpha: 0.699999988
@@ -205,7 +187,7 @@ Visualization Manager:
       Marker Topic: /robot_0/markers
       Name: MarkerArray0
       Namespaces:
-        robot_0: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -213,8 +195,7 @@ Visualization Manager:
       Marker Topic: /robot_1/markers
       Name: MarkerArray1
       Namespaces:
-        robot_0: true
-        robot_1: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -222,8 +203,7 @@ Visualization Manager:
       Marker Topic: /robot_2/markers
       Name: MarkerArray2
       Namespaces:
-        robot_0: true
-        robot_2: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -231,8 +211,7 @@ Visualization Manager:
       Marker Topic: /robot_3/markers
       Name: MarkerArray3
       Namespaces:
-        robot_0: true
-        robot_3: true
+        {}
       Queue Size: 100
       Value: true
   Enabled: true
@@ -267,9 +246,9 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.189807773
-        Y: -0.0829514489
-        Z: -0.258650661
+        X: 1.38540173
+        Y: 0.726112783
+        Z: 0.525383711
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false

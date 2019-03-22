@@ -92,7 +92,7 @@ class KalmanFilterNode(object):
         self.X_est.pose.pose = initial_pos
 
         # Create subscribers
-        rospy.Subscriber('/mocap_node/locations', PoseArray, self.sensor_callback, queue_size=1)
+        rospy.Subscriber('/mocap_node/positions', PoseArray, self.sensor_callback, queue_size=1)
 
         # Create tf broadcaster
         br = tf.TransformBroadcaster()

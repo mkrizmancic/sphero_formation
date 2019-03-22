@@ -1,6 +1,7 @@
 #!/bin/bash
 
 number_of_nodes=$(rosparam get /num_of_robots)
+debug="$(rosparam get /debug_set)"
 filename="$1" # config file with initial velocities for each Sphero
 robot_name="$2_" # robot name
 
@@ -28,5 +29,12 @@ done
 
 
 echo "DONE"
+
+if [ "$debug" = "true" ]; then
+	echo "Calling service to change verbosity level for sphero_0 to DEBUG..."
+	service_name="/${robot_name}0/ReynoldsController/set_logger_level"
+	rosservice call --wait ${service_name} "logger: 'rosout' 
+level: 'debug'"
+fi
 
 cat

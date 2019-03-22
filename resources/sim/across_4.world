@@ -1,0 +1,16 @@
+include "definitions.inc"
+
+# load an environment bitmap
+floorplan
+( 
+	name "across"
+	bitmap "../maps/across.bmp"
+	size [3.4 3.2 1]  # duzina sirina visina
+	pose [1.5 1.45 0 0 ]
+)
+
+# throw in robots
+sphero( pose [ 1 1 0 0.000 ] name "sphero_0" color "red")
+sphero( pose [ 1.5 1 0 0.000 ] name "sphero_1" color "blue")
+sphero( pose [ 1 1.5 0 0.000 ] name "sphero_2" color "blue")
+sphero( pose [ 1.5 1.5 0 0.000 ] name "sphero_3" color "blue")

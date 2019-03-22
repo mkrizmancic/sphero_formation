@@ -55,13 +55,31 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        map:
+          Value: true
+        sphero_0/base_link:
+          Value: true
+        sphero_1/base_link:
+          Value: true
+        sphero_2/base_link:
+          Value: true
+        sphero_3/base_link:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        {}
+        map:
+          sphero_0/base_link:
+            {}
+          sphero_1/base_link:
+            {}
+          sphero_2/base_link:
+            {}
+          sphero_3/base_link:
+            {}
       Update Interval: 0
       Value: true
     - Alpha: 0.699999988
@@ -84,6 +102,11 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: RobotModel0
       Robot Description: robot_description
       TF Prefix: sphero_0
@@ -100,6 +123,11 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: RobotModel1
       Robot Description: robot_description
       TF Prefix: sphero_1
@@ -116,6 +144,11 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: RobotModel2
       Robot Description: robot_description
       TF Prefix: sphero_2
@@ -132,6 +165,11 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: RobotModel3
       Robot Description: robot_description
       TF Prefix: sphero_3
@@ -202,18 +240,18 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.189807773
-        Y: -0.0829514489
-        Z: -0.258650661
+        X: 1.41412795
+        Y: 0.837159574
+        Z: 0.534152865
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.804796934
+      Pitch: 0.784796953
       Target Frame: map
       Value: Orbit (rviz)
-      Yaw: 4.70857954
+      Yaw: 4.70357943
     Saved: ~
 Window Geometry:
   Displays:

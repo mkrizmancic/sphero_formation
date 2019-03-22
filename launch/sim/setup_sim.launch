@@ -1,14 +1,14 @@
 <launch>
 	<!-- Set the arguments. -->
 	<arg name="num" default="4"/>  <!-- Number of robots -->
-	<arg name="map_name" default="empty_3x3"/>  <!-- Name of the simulation map -->
+	<arg name="map_name" default="across"/>  <!-- Name of the simulation map -->
 	<arg name="map_world" default="$(find sphero_formation)/resources/sim/$(arg map_name)_$(arg num).world"/>
 	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
 
 	<!-- Set number of robots as ros parameter so all nodes can access it. -->
 	<param name="num_of_robots" type="int" value="$(arg num)"/>
 	<!-- A sphere model used to represent Sphero robots -->
-	<param name="robot_description" textfile="$(find sphero_formation)/resources/simple_ball.urdf" />
+	<param name="robot_description" textfile="$(find sphero_formation)/resources/simple_ball.urdf"/>
 
 	<!-- Start map server. -->
 	<node pkg="map_server" type="map_server" args="$(arg map_yaml)" name="map_server"/>

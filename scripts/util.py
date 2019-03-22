@@ -137,7 +137,7 @@ class MarkerSet(object):
         self.visualization = MarkerArray()
 
         # Make sure these keys are the same as the ones in `boids.py`
-        keys = ['alignment', 'cohesion', 'separation', 'avoid', 'velocity']
+        keys = ['alignment', 'cohesion', 'separation', 'avoid', 'acceleration', 'velocity']
         self.markers = dict.fromkeys(keys)
 
         marker_id = 0
@@ -150,17 +150,18 @@ class MarkerSet(object):
             self.markers[key].type = Marker.ARROW
             self.markers[key].action = Marker.ADD
             self.markers[key].pose = Pose()
-            self.markers[key].pose.position.z = 0.075  # Sphero radius
+            self.markers[key].pose.position.z = 0.036  # Sphero radius
             self.markers[key].lifetime = rospy.Duration(0)
             self.markers[key].frame_locked = True
             marker_id += 1
 
         # Set colors of each marker
-        self.markers['alignment'].color = ColorRGBA(0, 0, 1, 1)   # blue
-        self.markers['cohesion'].color = ColorRGBA(0, 1, 0, 1)    # green
-        self.markers['separation'].color = ColorRGBA(1, 0, 0, 1)  # red
-        self.markers['avoid'].color = ColorRGBA(1, 1, 0, 1)       # yellow
-        self.markers['velocity'].color = ColorRGBA(1, 1, 1, 1)    # white
+        self.markers['alignment'].color = ColorRGBA(0, 0, 1, 1)     # blue
+        self.markers['cohesion'].color = ColorRGBA(0, 1, 0, 1)      # green
+        self.markers['separation'].color = ColorRGBA(1, 0, 0, 1)    # red
+        self.markers['avoid'].color = ColorRGBA(1, 1, 0, 1)         # yellow
+        self.markers['acceleration'].color = ColorRGBA(0, 0, 0, 1)  # black
+        self.markers['velocity'].color = ColorRGBA(1, 1, 1, 1)      # white
 
     def update_data(self, values):
         """
