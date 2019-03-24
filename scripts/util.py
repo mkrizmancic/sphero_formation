@@ -40,16 +40,23 @@ class Vector2(object):
         set_mag(self, value): Set vector's magnitude without changing direction
     """
 
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0, y=0, alt=False):
         """
         Initialize vector components.
 
         Args:
             x (float): x component of the vector
             y (float): y component of the vector
+            alt (bool): If True, x is magnitude and y is direction of vector
         """
-        self.x = x
-        self.y = y
+        if alt:
+            self.x = 1
+            self.y = 1
+            self.set_mag(x)
+            self.set_angle(y)
+        else:
+            self.x = x
+            self.y = y
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
@@ -93,6 +100,23 @@ class Vector2(object):
         """Return the angle of the vector."""
         return math.degrees(math.atan2(self.y, self.x))
 
+    def set_mag(self, value):
+        """Set vector's magnitude without changing direction."""
+        self.normalize()
+        self.x *= value
+        self.y *= value
+
+    def set_angle(self, value):
+        """Set vector's direction without changing magnitude."""
+        delta = angle_diff(self.arg(), value)
+        self.rotate(delta)
+
+    def rotate(self, value):
+        """Rotate vector by degrees specified in value."""
+        value = math.radians(value)
+        self.x, self.y = math.cos(value) * self.x - math.sin(value) * self.y, \
+                         math.sin(value) * self.x + math.cos(value) * self.y
+
     def normalize(self, ret=False):
         """Normalize the vector."""
         d = self.norm()
@@ -108,11 +132,20 @@ class Vector2(object):
         if self.norm() > value:
             self.set_mag(value)
 
-    def set_mag(self, value):
-        """Set vector's magnitude without changing direction."""
-        self.normalize()
-        self.x *= value
-        self.y *= value
+    def constrain(self, old_value, max_value):
+        """Limit vector's change of direction to max_value from old_value."""
+        desired_value = self.arg()
+        delta = angle_diff(old_value, desired_value)
+        if abs(delta) > max_value:
+            value = angle_diff(desired_value, old_value + math.copysign(max_value, delta))
+            self.rotate(value)
+
+
+def angle_diff(from_angle, to_angle):
+    diff = (to_angle - from_angle) % 360
+    if diff >= 180:
+        diff -= 360
+    return diff
 
 
 def pose_dist(pose1, pose2):

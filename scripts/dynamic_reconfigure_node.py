@@ -16,11 +16,7 @@ class DynReconf():
     on server.
     """
     def __init__(self):
-        """Initialize publisher and dynamic reconfigure server."""
-        # Create publisher
-        self.pub = rospy.Publisher('param_update', Empty, queue_size=1, latch=True)
-
-        # Start dynamic reconfigure server
+        """Initialize dynamic reconfigure server."""
         Server(ReynoldsConfig, self.callback)
 
         # Keep program from exiting
@@ -35,12 +31,12 @@ class DynReconf():
                         Separation: {separation_factor}
                         Avoid: {avoid_factor}
                         Max speed: {max_speed}
+                        Max turning rate: {max_turning_rate}
                         Max force: {max_force}
                         Friction: {friction}
                         Crowd radius: {crowd_radius}
                         Search radius: {search_radius}
                         Avoid radius: {avoid_radius}""".format(**config))
-        self.pub.publish()
         return config
 
 

@@ -118,9 +118,7 @@ class Boid(object):
 
         # This dictionary holds values of each flocking components and is used
         # to pass them to the visualization markers publisher
-        # Make sure these keys are the same as the ones in `util.py`
-        keys = ['alignment', 'cohesion', 'separation', 'avoid', 'velocity']
-        self.viz_components = dict.fromkeys(keys)
+        self.viz_components = {}
 
     def update_parameters(self, params):
         """Save Reynolds controller parameters in class variables."""
@@ -129,6 +127,7 @@ class Boid(object):
         self.separation_factor = params['separation_factor']
         self.avoid_factor = params['avoid_factor']
         self.max_speed = params['max_speed']
+        self.turning_rate = params['max_turning_rate']
         self.max_force = params['max_force']
         self.friction = params['friction']
         self.crowd_radius = params['crowd_radius']
@@ -140,6 +139,7 @@ class Boid(object):
         rospy.logdebug('separation_factor:  %s', self.separation_factor)
         rospy.logdebug('avoid_factor:  %s', self.avoid_factor)
         rospy.logdebug('max_speed:  %s', self.max_speed)
+        rospy.logdebug('max_turning_rate: %s', self.turning_rate)
         rospy.logdebug('max_force:  %s', self.max_force)
         rospy.logdebug('friction:  %s', self.friction)
         rospy.logdebug('crowd_radius:  %s', self.crowd_radius)
@@ -246,9 +246,8 @@ class Boid(object):
 
         # Normal operation, velocity is determined using Reynolds' rules
         else:
-            force = Vector2()
             self.velocity = get_agent_velocity(my_agent)
-
+            old_heading = self.velocity.arg()
             rospy.logdebug("old_velocity: %s", self.velocity)
 
             # Compute all the components
@@ -263,6 +262,7 @@ class Boid(object):
             rospy.logdebug("avoid:        %s", avoid)
 
             # Add components together and limit the output
+            force = Vector2()
             force += alignment * self.alignment_factor
             force += cohesion * self.cohesion_factor
             force += separation * self.separation_factor
@@ -276,8 +276,10 @@ class Boid(object):
             acceleration = force / self.mass
 
             # Calculate total velocity (delta_velocity = acceleration * delta_time)
+
             self.velocity += acceleration / 10
             self.velocity.limit(self.max_speed)
+            self.velocity.constrain(old_heading, self.turning_rate)
 
             rospy.logdebug("force:        %s", force)
             rospy.logdebug("acceleration: %s", acceleration)
@@ -298,6 +300,7 @@ class Boid(object):
             vel.linear.y = self.velocity.y
 
             # Pack all components for Rviz visualization
+            # Make sure these keys are the same as the ones in `util.py`
             self.viz_components['alignment'] = alignment * self.alignment_factor
             self.viz_components['cohesion'] = cohesion * self.cohesion_factor
             self.viz_components['separation'] = separation * self.separation_factor

@@ -24,5 +24,6 @@
 	<node pkg="sphero_formation" type="simulation_tf.py" name="tf_server"/>
 
 	<!-- Record a bag for debug purposes -->
-	<node pkg="rosbag" type="record" name="rosbag_record" args="-O $(find sphero_formation)/sphero_sim_vel.bag --duration=120 /robot_0/cmd_vel /robot_0/odom" output="screen"/>
+	<arg name="rosbag_args" default="-O $(find sphero_formation)/sphero_sim_vel.bag --duration=120 /robot_0/cmd_vel /robot_0/odom"/>
+	<!-- <node pkg="rosbag" type="record" name="rosbag_record" args="$(arg rosbag_args)" output="screen"/> -->
 </launch>

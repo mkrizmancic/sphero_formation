@@ -4,7 +4,7 @@
 import rospy
 import pandas as pd
 import message_filters as mf
-from std_msgs.msg import Empty
+from dynamic_reconfigure.msg import Config
 from geometry_msgs.msg import Twist, PoseArray
 from visualization_msgs.msg import MarkerArray
 
@@ -60,7 +60,8 @@ class ReynoldsController(object):
     def param_callback(self, data):
         """Call method for updating flocking parameters from server."""
         param_names = ['alignment_factor', 'cohesion_factor', 'separation_factor', 'avoid_factor',
-                       'max_speed', 'max_force', 'friction', 'crowd_radius', 'search_radius']
+                       'max_speed', 'max_turning_rate', 'max_force', 'friction', 'crowd_radius',
+                       'search_radius']
         # Dictionary for passing parameters
         param_dict = {param: rospy.get_param('/dyn_reconf/' + param) for param in param_names}
         self.agent.update_parameters(param_dict)
@@ -89,7 +90,7 @@ class ReynoldsController(object):
         self.params_set = False
 
         # Create subscribers
-        rospy.Subscriber('/param_update', Empty, self.param_callback, queue_size=1)
+        rospy.Subscriber('/dyn_reconf/parameter_updates', Config, self.param_callback, queue_size=1)
 
         subs = [mf.Subscriber("nearest", OdometryArray), mf.Subscriber("avoid", PoseArray)]
         self.ts = mf.TimeSynchronizer(subs, 10)
