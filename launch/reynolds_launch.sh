@@ -1,7 +1,7 @@
 #!/bin/bash
 
 number_of_nodes=$(rosparam get /num_of_robots)
-debug="$(rosparam get /debug_set)"
+debug="$(rosparam get /debug_enabled)"
 filename="$1" # config file with initial velocities for each Sphero
 robot_name="$2_" # robot name
 

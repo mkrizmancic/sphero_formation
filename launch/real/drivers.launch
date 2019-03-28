@@ -1,12 +1,13 @@
 <launch>
-	<!-- Set the arguments. -->
-	<arg name="num" default="4"/> <!-- Number of Spheros in use -->
+	<!-- Set args -->
+    <arg name="num_of_robots" default="4"/>
+
 	<!-- Config file with Sphero addresses -->
 	<arg name="filename" default="$(find sphero_formation)/cfg/sphero_addresses.txt"/>
 
-	<!-- Set number of robots as ros parameter so all nodes can access it. -->
-	<param name="num_of_robots" type="int" value="$(arg num)"/>
+	<!-- Set arguments as ros parameter so all nodes can access them. -->
+	<param name="num_of_robots" type="int" value="$(arg num_of_robots)"/>
 
 	<!-- Start Sphero driver nodes launcher. -->
-	<node pkg="sphero_formation" type="drivers_launch.sh" name="drivers_launcher" args="$(arg num) $(arg filename)" output="screen"/>
+	<node pkg="sphero_formation" type="drivers_launch.sh" name="drivers_launcher" args="$(arg num_of_robots) $(arg filename)" output="screen"/>
 </launch>

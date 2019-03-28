@@ -1,23 +1,21 @@
 <launch>
-	<!-- Set the arguments. -->
-	<arg name="robot_name" default="robot"/>
-
-	<!-- Set true/false to enable/disable debug mode -->
-	<param name="debug_set" type="boolean" value="true"/>
+	<!-- Set args. -->
+	<arg name="wait_time" default="0"/>
+    <arg name="start_time" default="0"/>
 
 	<!-- Config file with initial velocities for each Sphero -->
 	<arg name="filename" default="$(find sphero_formation)/cfg/sphero_init_vel.cfg"/>
 
 	<!-- Start Reynolds controller nodes launcher. -->
-	<node pkg="sphero_formation" type="reynolds_launch.sh" name="reynolds_launcher" args="$(arg filename) $(arg robot_name)" output="screen">
-		<param name="wait_count" type="int" value="0"/>
-		<param name="start_count" type="int" value="0"/>
+	<node pkg="sphero_formation" type="reynolds_launch.sh" name="reynolds_launcher" args="$(arg filename) robot" output="screen">
+		<param name="wait_time" type="int" value="$(arg wait_time)"/>
+		<param name="start_time" type="int" value="$(arg start_time)"/>
 		<param name="run_type" type="string" value="sim"/>
 	</node>
 
 	<!-- Start nearest_search node: search for other Spheros in range. -->
 	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen">
-		<param name="robot_name" type="string" value="$(arg robot_name)"/>
+		<param name="robot_name" type="string" value="robot"/>
 	</node>
 
 	<!-- Start simulation_tf node: provide tf transforms for simulation-->

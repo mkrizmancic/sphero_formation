@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import rospy
+import rostopic
 from geometry_msgs.msg import PoseArray, Pose
 from std_msgs.msg import ColorRGBA
 from sphero_formation.srv import *
@@ -49,6 +50,12 @@ class InitializationNode(object):
         # Initialize class variables
         self.initial_positions = dict.fromkeys(pub_keys, Pose())
         self.current_position = None
+
+        # Calculate mocap node's publishing rate
+        tr = rostopic.ROSTopicHz(-1)
+        rospy.Subscriber('/mocap_node_positions', rospy.AnyMsg, tr.callback_hz, callback_args='/mocap_node/positions')
+        rospy.sleep(3)
+        rospy.set_param('/mocap_pub_rate', tr.get_hz('/mocap_node/positions'))
 
         # Create a subscriber
         rospy.Subscriber('/mocap_node/positions', PoseArray, self.callback, queue_size=1)
