@@ -132,6 +132,7 @@ class Boid(object):
         self.friction = params['friction']
         self.crowd_radius = params['crowd_radius']
         self.search_radius = params['search_radius']
+        self.avoid_radius = params['avoid_radius']
 
         rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
         rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
@@ -144,6 +145,7 @@ class Boid(object):
         rospy.logdebug('friction:  %s', self.friction)
         rospy.logdebug('crowd_radius:  %s', self.crowd_radius)
         rospy.logdebug('search_radius:  %s', self.search_radius)
+        rospy.logdebug('avoid_radius:  %s', self.avoid_radius)
 
     def compute_alignment(self, nearest_agents):
         """Return alignment component."""
@@ -170,12 +172,12 @@ class Boid(object):
         for agent in nearest_agents:
             agent_position = get_agent_position(agent)
             mean_position += agent_position
-        direction = mean_position / len(nearest_agents)
 
         # Steer toward calculated mean position
         # Force is proportional to agents distance from mean
-        d = direction.norm()
-        if d > 0:
+        if nearest_agents:
+            direction = mean_position / len(nearest_agents)
+            d = direction.norm()
             direction.set_mag(self.max_speed * (d / self.search_radius))
             steer = direction - self.velocity
             steer.limit(self.max_force)
@@ -247,7 +249,7 @@ class Boid(object):
         # Normal operation, velocity is determined using Reynolds' rules
         else:
             self.velocity = get_agent_velocity(my_agent)
-            old_heading = self.velocity.arg()
+            self.old_heading = self.velocity.arg()
             rospy.logdebug("old_velocity: %s", self.velocity)
 
             # Compute all the components
@@ -270,8 +272,10 @@ class Boid(object):
             force.limit(self.max_force)
 
             # If agent is moving, apply constant friction force
-            if self.velocity.norm() > 0:
+            if self.velocity.norm() > self.friction / 2:
                 force += self.friction * -1 * self.velocity.normalize(ret=True)
+            else:
+                self.velocity = Vector2()
 
             acceleration = force / self.mass
 
@@ -279,10 +283,10 @@ class Boid(object):
 
             self.velocity += acceleration / 10
             self.velocity.limit(self.max_speed)
-            self.velocity.constrain(old_heading, self.turning_rate)
+            self.velocity.constrain(self.old_heading, self.turning_rate)
 
             rospy.logdebug("force:        %s", force)
-            rospy.logdebug("acceleration: %s", acceleration)
+            rospy.logdebug("acceleration: %s", acceleration / 10)
             rospy.logdebug("velocity:     %s\n", self.velocity)
 
             # Apply moving average filter on calculated velocity

@@ -6,7 +6,8 @@ import math
 import rospy
 import message_filters as mf
 from copy import deepcopy
-from std_msgs.msg import Empty
+
+from dynamic_reconfigure.msg import Config
 from geometry_msgs.msg import PoseArray, Pose
 from nav_msgs.msg import Odometry, OccupancyGrid
 from sphero_formation.msg import OdometryArray
@@ -149,7 +150,7 @@ class NearestSearch(object):
         # Create subscribers
         rospy.Subscriber("/map", OccupancyGrid, self.map_callback, queue_size=1)
         rospy.sleep(0.5)  # Wait for first map_callback to finish
-        rospy.Subscriber('/param_update', Empty, self.param_callback, queue_size=1)
+        rospy.Subscriber('/dyn_reconf/parameter_updates', Config, self.param_callback, queue_size=1)
         self.param_callback(None)
 
         topic_name = '/' + robot_name + '_{}/odom'
