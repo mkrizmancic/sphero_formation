@@ -62,8 +62,11 @@ class NearestSearch(object):
             rospy.sleep(0.1)
 
         self.search_radius = rospy.get_param('/dyn_reconf/search_radius')
-        avoid_radius = rospy.get_param('/dyn_reconf/avoid_radius')
-        self.r = int(avoid_radius / self.map_resolution)
+        # TODO: komentar
+        # Maknuo sam avoid radius ovdje jer ima vise smisla da se koristi za
+        # minimalnu udaljenost od prepreke, a sve prepreke se traze u vidom
+        # polju agenta definiranom sa search radiusom
+        self.r = int(self.search_radius / self.map_resolution)
 
     def robot_callback(self, *data):
         """Find and publish positions of nearest agents and obstacles."""

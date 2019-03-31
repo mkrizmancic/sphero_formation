@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import math
 import rospy
 import numpy as np
 from geometry_msgs.msg import Twist
-from util import Vector2
+from util import Vector2, angle_diff
 
 
 class MAFilter(object):
@@ -76,7 +76,7 @@ class Boid(object):
         velocity (Vector2): Boid's velocity
 
     Parameters:
-        mass (Vector2): Boid's mass
+        mass (double): Boid's mass
         alignment_factor (double): Weight for alignment component
         cohesion_factor (double): Weight for cohesion component
         separation_factor (double): Weight for separation component
@@ -134,6 +134,9 @@ class Boid(object):
         self.search_radius = params['search_radius']
         self.avoid_radius = params['avoid_radius']
 
+        self.avoid_scaling = 1 / ((0.75 * self.search_radius) ** 2 * self.max_force)
+        self.separation_scaling = 1 / ((0.75 * self.crowd_radius) ** 2 * self.max_force)
+
         rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
         rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
         rospy.logdebug('cohesion_factor:  %s', self.cohesion_factor)
@@ -167,27 +170,24 @@ class Boid(object):
     def compute_cohesion(self, nearest_agents):
         """Return cohesion component."""
         mean_position = Vector2()
-        steer = Vector2()
+        direction = Vector2()
         # Find mean position of neighboring agents
         for agent in nearest_agents:
             agent_position = get_agent_position(agent)
             mean_position += agent_position
 
-        # Steer toward calculated mean position
-        # Force is proportional to agents distance from mean
+        # Apply force in direction of calculated mean position
+        # Force is proportional to agents' distance from the mean
         if nearest_agents:
             direction = mean_position / len(nearest_agents)
             d = direction.norm()
-            direction.set_mag(self.max_speed * (d / self.search_radius))
-            steer = direction - self.velocity
-            steer.limit(self.max_force)
+            direction.set_mag((self.max_force * (d / self.search_radius)))
         rospy.logdebug("cohesion*:    %s", direction)
-        return steer
+        return direction
 
     def compute_separation(self, nearest_agents):
         """Return separation component."""
         direction = Vector2()
-        steer = Vector2()
         count = 0
 
         for agent in nearest_agents:
@@ -195,39 +195,50 @@ class Boid(object):
             d = agent_position.norm()
             if d < self.crowd_radius:
                 count += 1
-                agent_position *= -1  # Make vector point away from other agent
+                agent_position *= -1        # Make vector point away from other agent
                 agent_position.normalize()  # Normalize to get only direction
-                # Vector's magnitude is reciprocal to distance between agents
-                agent_position /= d
+                # Vector's magnitude is proportional to inverse square of the distance between agents
+                agent_position = agent_position / (self.separation_scaling * d**2)
                 direction += agent_position
 
         if count:
-            direction.set_mag(self.max_speed)
-            steer = direction - self.velocity
-            steer.limit(self.max_force)
+            direction /= count
+            direction.limit(self.max_force)
         rospy.logdebug("separation*:  %s", direction)
-        return steer
+        return direction
 
     def compute_avoids(self, avoids):
         """Return avoid component."""
-        direction = Vector2()
-        steer = Vector2()
+        # TODO: objasniti što se ovdje zapravo događa
+        main_direction = Vector2()
+        safety_direction = Vector2()
+        count = 0
 
         for obst in avoids:
             obst_position = get_obst_position(obst)
             d = obst_position.norm()
-            obst_position *= -1  # Make vector point away from obstacle
+            obst_position *= -1        # Make vector point away from obstacle
             obst_position.normalize()  # Normalize to get only direction
-            # Vector's magnitude is reciprocal to distance between agents
-            obst_position /= d
-            direction += obst_position
+            if d < self.avoid_radius:
+                # Scale lineary so that there is no force when agent is on the
+                # edge of minimum avoiding distance and force is maximum if the
+                # distance from the obstacle is zero
+                safety_scaling = -self.max_force / self.avoid_radius * d + self.max_force
+                safety_direction += obst_position * safety_scaling
+                count += 1
+
+            # Normal operation: scale with inverse square law
+            obst_position = obst_position / (self.avoid_scaling * d**2)
+            main_direction += obst_position
 
         if avoids:
-            direction.set_mag(self.max_speed)
-            steer = direction - self.velocity
-            steer.limit(self.max_force)
-        rospy.logdebug("avoids*:      %s", direction)
-        return steer
+            a = angle_diff(self.old_heading, main_direction.arg() + 180)
+            side_scaling = max(math.cos(math.radians(a)), 0)
+            main_direction = main_direction / len(avoids) * side_scaling
+            safety_direction /= count
+
+        rospy.logdebug("avoids*:      %s", main_direction)
+        return main_direction + safety_direction
 
     def compute_velocity(self, my_agent, nearest_agents, avoids):
         """Compute total velocity based on all components."""
