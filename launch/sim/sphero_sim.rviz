@@ -51,34 +51,10 @@ Visualization Manager:
       Reference Frame: <Fixed Frame>
       Value: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        robot_0/base_footprint:
-          Value: false
-        robot_0/base_link:
-          Value: false
-        robot_0/odom:
-          Value: false
-        robot_1/base_footprint:
-          Value: false
-        robot_1/base_link:
-          Value: false
-        robot_1/odom:
-          Value: false
-        robot_2/base_footprint:
-          Value: false
-        robot_2/base_link:
-          Value: false
-        robot_2/odom:
-          Value: false
-        robot_3/base_footprint:
-          Value: false
-        robot_3/base_link:
-          Value: false
-        robot_3/odom:
-          Value: false
       Marker Scale: 1
       Name: TF
       Show Arrows: true
@@ -87,7 +63,7 @@ Visualization Manager:
       Tree:
         {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Alpha: 0.699999988
       Class: rviz/Map
       Color Scheme: map
@@ -182,37 +158,124 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel4
+      Robot Description: robot_description
+      TF Prefix: robot_4
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel5
+      Robot Description: robot_description
+      TF Prefix: robot_5
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel6
+      Robot Description: robot_description
+      TF Prefix: robot_6
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /robot_0/markers
       Name: MarkerArray0
       Namespaces:
-        {}
-      Queue Size: 100
+        robot_0: true
+      Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /robot_1/markers
       Name: MarkerArray1
       Namespaces:
-        {}
-      Queue Size: 100
+        robot_1: true
+      Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /robot_2/markers
       Name: MarkerArray2
       Namespaces:
-        {}
-      Queue Size: 100
+        robot_2: true
+      Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /robot_3/markers
       Name: MarkerArray3
       Namespaces:
-        {}
-      Queue Size: 100
+        robot_3: true
+      Queue Size: 6
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /robot_4/markers
+      Name: MarkerArray4
+      Namespaces:
+        robot_4: true
+      Queue Size: 6
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /robot_5/markers
+      Name: MarkerArray5
+      Namespaces:
+        robot_5: true
+      Queue Size: 6
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /robot_6/markers
+      Name: MarkerArray6
+      Namespaces:
+        robot_6: true
+      Queue Size: 6
       Value: true
   Enabled: true
   Global Options:
@@ -239,25 +302,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.86727381
+      Distance: 5.89549255
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.38540173
-        Y: 0.726112783
-        Z: 0.525383711
+        X: -0.311160177
+        Y: -0.93892777
+        Z: 0.866077065
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.804796934
-      Target Frame: map
+      Pitch: 1.3797965
+      Target Frame: robot_0/base_link
       Value: Orbit (rviz)
-      Yaw: 4.70857954
+      Yaw: 4.69857931
     Saved: ~
 Window Geometry:
   Displays:
@@ -275,5 +338,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1920
-  X: 1920
+  X: 0
   Y: 24

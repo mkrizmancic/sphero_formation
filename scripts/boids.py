@@ -134,8 +134,8 @@ class Boid(object):
         self.search_radius = params['search_radius']
         self.avoid_radius = params['avoid_radius']
 
-        self.avoid_scaling = 1 / ((0.75 * self.search_radius) ** 2 * self.max_force)
-        self.separation_scaling = 1 / ((0.75 * self.crowd_radius) ** 2 * self.max_force)
+        self.avoid_scaling = 1 / ((0.85 * self.search_radius) ** 2 * self.max_force)
+        self.separation_scaling = self.search_radius / self.crowd_radius ** 3 / self.max_force
 
         rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
         rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
@@ -158,13 +158,13 @@ class Boid(object):
         for agent in nearest_agents:
             agent_velocity = get_agent_velocity(agent)
             mean_velocity += agent_velocity
+        rospy.logdebug("alignment*:   %s", mean_velocity)
 
         # Steer toward calculated mean velocity
         if nearest_agents:
             mean_velocity.set_mag(self.max_speed)
             steer = mean_velocity - self.velocity
             steer.limit(self.max_force)
-        rospy.logdebug("alignment*:   %s", mean_velocity)
         return steer
 
     def compute_cohesion(self, nearest_agents):
@@ -180,9 +180,9 @@ class Boid(object):
         # Force is proportional to agents' distance from the mean
         if nearest_agents:
             direction = mean_position / len(nearest_agents)
+            rospy.logdebug("cohesion*:    %s", direction)
             d = direction.norm()
             direction.set_mag((self.max_force * (d / self.search_radius)))
-        rospy.logdebug("cohesion*:    %s", direction)
         return direction
 
     def compute_separation(self, nearest_agents):
