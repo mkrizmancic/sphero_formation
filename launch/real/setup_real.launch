@@ -1,8 +1,15 @@
 <launch>
-	<!-- Set the arguments. -->
-	<arg name="sens" default="0.2"/> <!-- Sensitivity for the joystick [0.0 - 1.0] -->
-	<arg name="map_name" default="across"/>  <!-- Name of the map -->
+	<!-- Set args -->
+	<arg name="map_name" default="across"/>
+    <arg name="debug_enabled" default="true"/>
+    <arg name="ctrl_loop_freq" default="10"/>
+	<arg name="sensitivity" default="0.2"/>
+
 	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
+
+	<!-- Set arguments as ros parameter so all nodes can access them. -->
+	<param name="debug_enabled" type="boolean" value="$(arg debug_enabled)"/>
+	<param name="ctrl_loop_frequency" type="int" value="$(arg ctrl_loop_freq)"/>
 
 	<!-- Start Optitrack data streaming node. -->
 	<include file="$(find mocap_optitrack)/launch/mocap.launch"/>
@@ -24,5 +31,5 @@
 	</node>
 
 	<!-- Start manual control nodes launcher. -->
-	<node pkg="sphero_formation" type="manual_ctrl_launch.sh" name="manual_launcher" args="$(arg sens)" output="screen"/>
+	<node pkg="sphero_formation" type="manual_ctrl_launch.sh" name="manual_launcher" args="$(arg sensitivity)" output="screen"/>
 </launch>

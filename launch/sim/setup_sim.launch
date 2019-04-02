@@ -1,14 +1,17 @@
 <launch>
-	<!-- Set the arguments. -->
-	<arg name="num" default="7"/>  <!-- Number of robots -->
-	<arg name="map_name" default="random_10x10"/>  <!-- Name of the simulation map -->
-	<arg name="map_world" default="$(find sphero_formation)/resources/sim/$(arg map_name)_$(arg num).world"/>
+	<!-- Set args. -->
+    <arg name="num_of_robots" default="7"/>
+	<arg name="map_name" default="empty_10x10"/>
+    <arg name="ctrl_loop_freq" default="10"/>
+    <arg name="debug_enabled" default="true"/>
+
+	<arg name="map_world" default="$(find sphero_formation)/resources/sim/$(arg map_name)_$(arg num_of_robots).world"/>
 	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
 
-	<!-- Set number of robots as ros parameter so all nodes can access it. -->
-	<param name="num_of_robots" type="int" value="$(arg num)"/>
-	<!-- A sphere model used to represent Sphero robots -->
-	<param name="robot_description" textfile="$(find sphero_formation)/resources/simple_ball.urdf"/>
+	<!-- Set arguments as ros parameter so all nodes can access them. -->
+	<param name="num_of_robots" type="int" value="$(arg num_of_robots)"/>
+	<param name="ctrl_loop_freq" type="int" value="$(arg ctrl_loop_freq)"/>
+	<param name="debug_enabled" type="boolean" value="$(arg debug_enabled)"/>
 
 	<!-- Start map server. -->
 	<node pkg="map_server" type="map_server" args="$(arg map_yaml)" name="map_server"/>
@@ -23,5 +26,6 @@
 	<node pkg="sphero_formation" type="dynamic_reconfigure_node.py" name="dyn_reconf" output="screen"/>
 
 	<!-- Start rviz. -->
+	<param name="robot_description" textfile="$(find sphero_formation)/resources/simple_ball.urdf"/>
 	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sphero_formation)/launch/sim/sphero_sim.rviz"/>
 </launch>

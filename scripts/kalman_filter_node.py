@@ -83,11 +83,13 @@ class KalmanFilterNode(object):
         # Initialize class variables
         self.missing_counter = 0   # Counts iterations with missing marker information
         self.sphero_radius = 0.05  # Sphero radius in meters
+        self.pub_frequency = rospy.get_param('/ctrl_loop_freq')
+        self.sub_frequency = rospy.get_param('/mocap_pub_rate')
         initial_pos = self.get_initial_position()  # Get initial position
         rospy.loginfo(rospy.get_namespace() + '\n%s\n', initial_pos.position)
 
         # Initialize Kalman filter and estimation
-        self.filter = KalmanFilter(initial_pos)
+        self.filter = KalmanFilter(1 / self.sub_frequency, initial_pos)
         self.X_est = Odometry()
         self.X_est.pose.pose = initial_pos
 
@@ -98,7 +100,7 @@ class KalmanFilterNode(object):
         br = tf.TransformBroadcaster()
 
         # Main while loop.
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(self.pub_frequency)
         while not rospy.is_shutdown():
             pub.publish(self.X_est)
             pos = self.X_est.pose.pose.position

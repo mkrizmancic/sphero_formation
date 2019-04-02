@@ -82,10 +82,11 @@ class ReynoldsController(object):
         # Initialize class variables
         init_vel_x = rospy.get_param("~init_vel_x", 0)
         init_vel_y = rospy.get_param("~init_vel_y", 0)
-        wait_count = rospy.get_param("/reynolds_launcher/wait_count")
-        start_count = rospy.get_param("/reynolds_launcher/start_count")
+        frequency = rospy.get_param("/ctrl_loop_freq")
+        wait_count = rospy.get_param("/reynolds_launcher/wait_time") * frequency
+        start_count = rospy.get_param("/reynolds_launcher/start_time") * frequency
         self.run_type = rospy.get_param("/reynolds_launcher/run_type")
-        self.agent = Boid(init_vel_x, init_vel_y, wait_count, start_count)
+        self.agent = Boid(init_vel_x, init_vel_y, wait_count, start_count, frequency)
         self.markers = MarkerSet()
         self.params_set = False
 

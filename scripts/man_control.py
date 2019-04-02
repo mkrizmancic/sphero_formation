@@ -109,6 +109,7 @@ class ManControlNode(object):
 
         # Set class variables
         self.sensitivity = rospy.get_param('~sensitivity', 0.2)  # left stick sensitivity
+        self.frequency = rospy.get_param('/ctrl_loop_freq')
         self.real_vel_stp = 0.5
         self.driving_mode = 'analog'
         self.enabled = False
@@ -133,7 +134,7 @@ class ManControlNode(object):
         self.heading = Float32()
 
         # Main while loop.
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(self.frequency)
         while not rospy.is_shutdown():
             if self.enabled:
                 self.pub_vel.publish(self.cmd_vel)

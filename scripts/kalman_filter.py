@@ -11,9 +11,9 @@ from geometry_msgs.msg import Twist
 class KalmanFilter(object):
     """Class implementation of Kalman filter."""
 
-    def __init__(self, position, velocity=Twist()):
+    def __init__(self, step_time, position, velocity=Twist()):
         """Initialize class variables and set initial conditions."""
-        T = 0.01  # step time
+        T = step_time
         self.X0 = self.get_numpy_state(position, velocity)
         self.P0 = 0.001 * np.eye(4)
 

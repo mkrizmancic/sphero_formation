@@ -97,13 +97,14 @@ class Boid(object):
             Compute total velocity based on all components
     """
 
-    def __init__(self, initial_velocity_x, initial_velocity_y, wait_count, start_count):
+    def __init__(self, initial_velocity_x, initial_velocity_y, wait_count, start_count, frequency):
         """Create an empty boid and update parameters."""
         self.position = Vector2()
         self.velocity = Vector2()
         self.mass = 0.18  # mass of Sphero robot in kilograms
-        self.wait_count = wait_count    # waiting time before starting
-        self.start_count = start_count  # time during initial velocity is send
+        self.wait_count = wait_count    # Waiting time before starting
+        self.start_count = start_count  # Time during which initial velocity is being sent
+        self.frequency = frequency      # Control loop frequency
 
         # Set initial velocity
         self.initial_velocity = Twist()
@@ -292,12 +293,12 @@ class Boid(object):
 
             # Calculate total velocity (delta_velocity = acceleration * delta_time)
 
-            self.velocity += acceleration / 10
+            self.velocity += acceleration / self.frequency
             self.velocity.limit(self.max_speed)
-            self.velocity.constrain(self.old_heading, self.turning_rate)
+            self.velocity.constrain(self.old_heading, self.turning_rate / self.frequency)
 
             rospy.logdebug("force:        %s", force)
-            rospy.logdebug("acceleration: %s", acceleration / 10)
+            rospy.logdebug("acceleration: %s", acceleration / self.frequency)
             rospy.logdebug("velocity:     %s\n", self.velocity)
 
             # Apply moving average filter on calculated velocity
@@ -320,6 +321,6 @@ class Boid(object):
             self.viz_components['cohesion'] = cohesion * self.cohesion_factor
             self.viz_components['separation'] = separation * self.separation_factor
             self.viz_components['avoid'] = avoid * self.avoid_factor
-            self.viz_components['acceleration'] = acceleration / 10
+            self.viz_components['acceleration'] = acceleration / self.frequency
             self.viz_components['velocity'] = self.velocity
             return vel, self.viz_components
