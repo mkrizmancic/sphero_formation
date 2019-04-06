@@ -12,8 +12,9 @@ Function:
     pose_dist: calculate distance between two ROS Pose type variables
 """
 
-import rospy
 import math
+import rospy
+import logging
 from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Pose, Vector3, Quaternion
@@ -40,23 +41,23 @@ class Vector2(object):
         set_mag(self, value): Set vector's magnitude without changing direction
     """
 
-    def __init__(self, x=0, y=0, alt=False):
+    def __init__(self, x=0, y=0):
         """
         Initialize vector components.
 
         Args:
             x (float): x component of the vector
             y (float): y component of the vector
-            alt (bool): If True, x is magnitude and y is direction of vector
         """
-        if alt:
-            self.x = 1
-            self.y = 1
-            self.set_mag(x)
-            self.set_angle(y)
-        else:
-            self.x = x
-            self.y = y
+        self.x = x
+        self.y = y
+
+    @classmethod
+    def from_norm_arg(cls, norm=0, arg=0):
+        inst = cls(1, 1)
+        inst.set_mag(norm)
+        inst.set_angle(arg)
+        return inst
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
@@ -88,9 +89,12 @@ class Vector2(object):
     def __rmul__(self, other):
         return self.__mul__(other)
 
-    def __repr__(self):
-        return "({: 6.1f}, {: .5f})".format(self.arg(), self.norm())
+    def __str__(self):
+        return "({: .5f}, {: 6.1f})".format(self.norm(), self.arg())
         # return "({: .3f}, {: .3f})".format(self.x, self.y)
+
+    def __repr__(self):
+        return "Vector2({0}, {1})\n\t.norm = {2}\n\t.arg = {3}".format(self.x, self.y, self.norm(), self.arg())
 
     def norm(self):
         """Return the norm of the vector."""
@@ -102,12 +106,21 @@ class Vector2(object):
 
     def set_mag(self, value):
         """Set vector's magnitude without changing direction."""
-        self.normalize()
+        if self.norm() == 0:
+            logging.warning('Trying to set magnitude for a null-vector! Angle will be set to 0!')
+            self.x = 1
+            self.y = 0
+        else:
+            self.normalize()
         self.x *= value
         self.y *= value
 
     def set_angle(self, value):
         """Set vector's direction without changing magnitude."""
+        if self.norm() == 0:
+            logging.warning('Trying to set angle for a null-vector! Magnitude will be set to 1!')
+            self.x = 1
+            self.y = 0
         delta = angle_diff(self.arg(), value)
         self.rotate(delta)
 
