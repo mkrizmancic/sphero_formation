@@ -7,6 +7,7 @@ from random import random, randint, seed
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32, ColorRGBA
+from sphero_test import SpheroTest
 
 
 class ManControlNode(object):
@@ -43,20 +44,11 @@ class ManControlNode(object):
                 if self.display_true:
                     rospy.loginfo("Driving mode: analog")
 
-        # Joystick L1 button - increase digital mode speed set point
+        # Joystick L1 button - start test
         if data.buttons[4]:
-            self.real_vel_stp += 0.1
-            if self.real_vel_stp > 3:
-                self.real_vel_stp = 3
             if self.display_true:
-                rospy.loginfo("Real speed set point: %.1f", self.real_vel_stp)
-        # Joystick L2 button - decrease digital mode speed set point
-        elif data.buttons[6]:
-            self.real_vel_stp -= 0.1
-            if self.real_vel_stp < 0:
-                self.real_vel_stp = 0
-            if self.display_true:
-                rospy.loginfo("Real speed set point: %.1f", self.real_vel_stp)
+                rospy.loginfo("Starting test...")
+            self.SpheroTest.start()
 
         # For analog driving - use left stick
         if self.driving_mode == 'analog':
@@ -113,6 +105,7 @@ class ManControlNode(object):
         self.real_vel_stp = 0.5
         self.driving_mode = 'analog'
         self.enabled = False
+        self.SpheroTest = SpheroTest()
 
         # Work-around for displaying info messages. Currently, each Sphero has
         # its own manual control node even though they all get same commands.
