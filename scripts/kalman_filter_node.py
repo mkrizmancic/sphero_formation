@@ -89,7 +89,7 @@ class KalmanFilterNode(object):
         rospy.loginfo(rospy.get_namespace() + '\n%s\n', initial_pos.position)
 
         # Initialize Kalman filter and estimation
-        self.filter = KalmanFilter(1 / self.sub_frequency, initial_pos)
+        self.filter = KalmanFilter(1.0 / self.sub_frequency, initial_pos)
         self.X_est = Odometry()
         self.X_est.pose.pose = initial_pos
 

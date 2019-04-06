@@ -1,9 +1,9 @@
 <launch>
 	<!-- Set args. -->
-    <arg name="num_of_robots" default="7"/>
+    <arg name="num_of_robots" default="4"/>
 	<arg name="map_name" default="empty_10x10"/>
     <arg name="ctrl_loop_freq" default="10"/>
-    <arg name="debug_enabled" default="true"/>
+    <arg name="debug_enabled" default="false"/>
 
 	<arg name="map_world" default="$(find sphero_formation)/resources/sim/$(arg map_name)_$(arg num_of_robots).world"/>
 	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
@@ -28,4 +28,7 @@
 	<!-- Start rviz. -->
 	<param name="robot_description" textfile="$(find sphero_formation)/resources/simple_ball.urdf"/>
 	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sphero_formation)/launch/sim/sphero_sim.rviz"/>
+
+	<!-- Start Kalman filter nodes launcher. -->
+	<node pkg="sphero_formation" type="kalman_filter_sim_launch.sh" name="kalman_launcher" args="$(arg num_of_robots)" output="screen"/>
 </launch>
