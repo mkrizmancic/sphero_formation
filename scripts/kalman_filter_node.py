@@ -84,7 +84,7 @@ class KalmanFilterNode(object):
         self.missing_counter = 0   # Counts iterations with missing marker information
         self.sphero_radius = 0.05  # Sphero radius in meters
         self.pub_frequency = rospy.get_param('/ctrl_loop_freq')
-        self.sub_frequency = rospy.get_param('/mocap_pub_rate')
+        self.sub_frequency = 100 # rospy.get_param('/mocap_pub_rate')
         initial_pos = self.get_initial_position()  # Get initial position
         rospy.loginfo(rospy.get_namespace() + '\n%s\n', initial_pos.position)
 
@@ -109,6 +109,10 @@ class KalmanFilterNode(object):
                              rospy.Time.now(),
                              rospy.get_namespace() + 'base_link',
                              'map')
+            rospy.logdebug(' x = % 7.5f', self.X_est.pose.pose.position.x)
+            rospy.logdebug(' y = % 7.5f', self.X_est.pose.pose.position.y)
+            rospy.logdebug('vx = % 7.5f', self.X_est.twist.twist.linear.x)
+            rospy.logdebug('vy = % 7.5f\n', self.X_est.twist.twist.linear.y)
             rate.sleep()
 
 

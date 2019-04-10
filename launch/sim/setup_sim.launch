@@ -3,7 +3,7 @@
     <arg name="num_of_robots" default="7"/>
 	<arg name="map_name" default="empty_10x10"/>
     <arg name="ctrl_loop_freq" default="10"/>
-    <arg name="debug_enabled" default="true"/>
+    <arg name="debug_boids" default="true"/>
 
 	<arg name="map_world" default="$(find sphero_formation)/resources/sim/$(arg map_name)_$(arg num_of_robots).world"/>
 	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>

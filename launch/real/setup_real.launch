@@ -1,15 +1,17 @@
 <launch>
 	<!-- Set args -->
-	<arg name="map_name" default="across"/>
-    <arg name="debug_enabled" default="true"/>
+	<arg name="map_name" default="borongaj"/>
+    <arg name="debug_boids" default="true"/>
+    <arg name="debug_kalman" default="true"/>
     <arg name="ctrl_loop_freq" default="10"/>
 	<arg name="sensitivity" default="0.2"/>
 
 	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
 
 	<!-- Set arguments as ros parameter so all nodes can access them. -->
-	<param name="debug_enabled" type="boolean" value="$(arg debug_enabled)"/>
-	<param name="ctrl_loop_frequency" type="int" value="$(arg ctrl_loop_freq)"/>
+	<param name="debug_boids" type="boolean" value="$(arg debug_boids)"/>
+	<param name="debug_kalman" type="boolean" value="$(arg debug_kalman)"/>
+	<param name="ctrl_loop_freq" type="int" value="$(arg ctrl_loop_freq)"/>
 
 	<!-- Start Optitrack data streaming node. -->
 	<include file="$(find mocap_optitrack)/launch/mocap.launch"/>

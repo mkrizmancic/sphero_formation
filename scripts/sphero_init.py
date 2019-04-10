@@ -55,7 +55,9 @@ class InitializationNode(object):
         tr = rostopic.ROSTopicHz(-1)
         rospy.Subscriber('/mocap_node_positions', rospy.AnyMsg, tr.callback_hz, callback_args='/mocap_node/positions')
         rospy.sleep(3)
-        rospy.set_param('/mocap_pub_rate', tr.get_hz('/mocap_node/positions'))
+        mocap_pub_rate = 100 # int(round(tr.get_hz('/mocap_node/positions')[0]))
+        rospy.set_param('/mocap_pub_rate', mocap_pub_rate)
+        rospy.loginfo('Param \'/mocap_pub_rate\' set to %d', mocap_pub_rate)
 
         # Create a subscriber
         rospy.Subscriber('/mocap_node/positions', PoseArray, self.callback, queue_size=1)
@@ -67,8 +69,8 @@ class InitializationNode(object):
             self.pubs[key].publish(1.0, 1.0, 1.0, 1.0)  # ..turn on LEDs..
             rospy.sleep(2)
             retry_count = 0
-            # If found, position of the Sphero is in self.current_position. If
-            # not, try to get the position two more times.
+            # If found, position of the Sphero is in self.current_position.
+            # If not, try to get the position two more times.
             while self.current_position is None and retry_count < 3:
                 rospy.logwarn("Initial position not found for " + key)
                 rospy.logwarn("Trying again...")

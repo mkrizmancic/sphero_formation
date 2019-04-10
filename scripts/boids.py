@@ -295,7 +295,7 @@ class Boid(object):
 
             self.velocity += acceleration / self.frequency
             self.velocity.limit(self.max_speed)
-            self.velocity.constrain(self.old_heading, self.turning_rate / self.frequency)
+            # self.velocity.constrain(self.old_heading, self.turning_rate / self.frequency)
 
             rospy.logdebug("force:        %s", force)
             rospy.logdebug("acceleration: %s", acceleration / self.frequency)
