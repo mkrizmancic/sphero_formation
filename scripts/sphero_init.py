@@ -51,14 +51,6 @@ class InitializationNode(object):
         self.initial_positions = dict.fromkeys(pub_keys, Pose())
         self.current_position = None
 
-        # Calculate mocap node's publishing rate
-        tr = rostopic.ROSTopicHz(-1)
-        rospy.Subscriber('/mocap_node_positions', rospy.AnyMsg, tr.callback_hz, callback_args='/mocap_node/positions')
-        rospy.sleep(3)
-        mocap_pub_rate = 100 # int(round(tr.get_hz('/mocap_node/positions')[0]))
-        rospy.set_param('/mocap_pub_rate', mocap_pub_rate)
-        rospy.loginfo('Param \'/mocap_pub_rate\' set to %d', mocap_pub_rate)
-
         # Create a subscriber
         rospy.Subscriber('/mocap_node/positions', PoseArray, self.callback, queue_size=1)
 

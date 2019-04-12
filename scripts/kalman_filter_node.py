@@ -20,6 +20,7 @@ class KalmanFilterNode(object):
     the same namespace and uses Kalman filter to output steady position and
     velocity data for other nodes.
     """
+
     def get_initial_position(self):
         """Calls service which returns Sphero's initial position."""
         rospy.wait_for_service('/return_initials')
@@ -70,23 +71,28 @@ class KalmanFilterNode(object):
         # If measurement data is not available, use only prediction step
         # Else, use prediction and update step
         if X_measured is None:
-            self.X_est = self.filter.predict(u=None)
+            self.X_est = self.filter.predict()
         else:
-            self.filter.predict(u=None)
-            self.X_est = self.filter.update(X_measured)
+            self.X_est = self.filter.predict_update(X_measured)
+
+        if self.debug_enabled:
+            self.debug_pub.publish(self.X_est)
 
     def __init__(self):
         """Initialize agent instance, create subscribers and publishers."""
-        # Create a publisher for commands
-        pub = rospy.Publisher('odom', Odometry, queue_size=1)
-
         # Initialize class variables
         self.missing_counter = 0   # Counts iterations with missing marker information
         self.sphero_radius = 0.05  # Sphero radius in meters
         self.pub_frequency = rospy.get_param('/ctrl_loop_freq')
-        self.sub_frequency = 100 # rospy.get_param('/mocap_pub_rate')
+        self.sub_frequency = rospy.get_param('/data_stream_freq')
+        self.debug_enabled = rospy.get_param('/debug_kalman')
         initial_pos = self.get_initial_position()  # Get initial position
         rospy.loginfo(rospy.get_namespace() + '\n%s\n', initial_pos.position)
+
+        # Create a publisher for commands
+        pub = rospy.Publisher('odom', Odometry, queue_size=self.pub_frequency)
+        if self.debug_enabled:
+            self.debug_pub = rospy.Publisher('debug_est', Odometry, queue_size=self.sub_frequency)
 
         # Initialize Kalman filter and estimation
         self.filter = KalmanFilter(1.0 / self.sub_frequency, initial_pos)
@@ -94,7 +100,8 @@ class KalmanFilterNode(object):
         self.X_est.pose.pose = initial_pos
 
         # Create subscribers
-        rospy.Subscriber('/mocap_node/positions', PoseArray, self.sensor_callback, queue_size=1)
+        rospy.Subscriber('/mocap_node/positions', PoseArray,
+                         self.sensor_callback, queue_size=self.sub_frequency)
 
         # Create tf broadcaster
         br = tf.TransformBroadcaster()

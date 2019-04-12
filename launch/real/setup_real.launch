@@ -1,37 +1,45 @@
 <launch>
-	<!-- Set args -->
-	<arg name="map_name" default="borongaj"/>
-    <arg name="debug_boids" default="true"/>
-    <arg name="debug_kalman" default="true"/>
-    <arg name="ctrl_loop_freq" default="10"/>
-	<arg name="sensitivity" default="0.2"/>
+    <!-- Set arguments. Change values in this section to control various parameters of execution. -->
+    <!-- There are some parameters that can be changed in other launch files but you should generally leave them as they are -->
+    <!-- ********** START OF SECTION ********** -->
+    <arg name="map_name" default="borongaj"/>       <!-- Name of the map used. -->
+    <arg name="ctrl_loop_freq" default="10"/>       <!-- Frequency used by Reynolds rules. -->
+    <arg name="data_stream_freq" default="100"/>    <!-- Position streaming frequency, used by Kalman filter. -->
+    <arg name="debug_boids" default="true"/>        <!-- Enable debugging for Reynolds controller node. -->
+    <arg name="debug_kalman" default="true"/>       <!-- Enable debugging for Kalman filter node. -->
+    <arg name="joy_path" default="/dev/input/js1"/> <!-- Joystick device path. -->
+    <arg name="sensitivity" default="0.2"/>         <!-- Sensitivity of a joystick. [0.0 - 1.0] -->
+    <arg name="wait_time" default="0"/>             <!-- During first X seconds of execution, no velocity commands are sent to robots. -->
+    <arg name="start_time" default="0"/>            <!-- During first X seconds after "wait_time", inital velocity commands are sent to robots. -->
+    <!-- *********** END OF SECTION *********** -->
 
-	<arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
+    <arg name="map_yaml" default="$(find sphero_formation)/resources/maps/$(arg map_name).yaml"/>
 
-	<!-- Set arguments as ros parameter so all nodes can access them. -->
-	<param name="debug_boids" type="boolean" value="$(arg debug_boids)"/>
-	<param name="debug_kalman" type="boolean" value="$(arg debug_kalman)"/>
-	<param name="ctrl_loop_freq" type="int" value="$(arg ctrl_loop_freq)"/>
+    <!-- Set arguments as ros parameter so all nodes can access them. -->
+    <param name="ctrl_loop_freq" type="int" value="$(arg ctrl_loop_freq)"/>
+    <param name="data_stream_freq" type="int" value="$(arg data_stream_freq)"/>
+    <param name="debug_boids" type="boolean" value="$(arg debug_boids)"/>
+    <param name="debug_kalman" type="boolean" value="$(arg debug_kalman)"/>
+    <param name="wait_time" type="double" value="$(arg wait_time)"/>
+    <param name="start_time" type="double" value="$(arg start_time)"/>
+    <param name="run_type" type="string" value="real"/>
 
-	<!-- Start Optitrack data streaming node. -->
-	<include file="$(find mocap_optitrack)/launch/mocap.launch"/>
+    <!-- Start Optitrack data streaming node. -->
+    <include file="$(find mocap_optitrack)/launch/mocap.launch"/>
 
-	<!-- Start map server. -->
-	<node pkg="map_server" type="map_server" args="$(arg map_yaml)" name="map_server"/>
+    <!-- Start map server. -->
+    <node pkg="map_server" type="map_server" args="$(arg map_yaml)" name="map_server"/>
+    <!-- Start rqt_reconfigure GUI and dynamic reconfigure node. -->
+    <!-- <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/> -->
+    <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui"/>
+    <node pkg="sphero_formation" type="dynamic_reconfigure_node.py" name="dyn_reconf" output="screen"/>
 
-	<!-- Start rqt_reconfigure GUI. -->
-	<node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
+    <!-- Start Joy node: user control with joystick. -->
+    <node pkg="joy" type="joy_node" name="JoyInput">
+        <param name="dev" type="string" value="$(arg joy_path)"/>
+        <param name="deadzone" value="0"/>
+    </node>
 
-	<!-- Start dynamic reconfigure node: allows changing parameters during runtime. -->
-	<node pkg="sphero_formation" type="dynamic_reconfigure_node.py" name="dyn_reconf" output="screen"/>
-
-	<!-- Start Joy node: user control with joystick. -->
-	<node pkg="joy" type="joy_node" name="JoyInput">
-		<!-- REPLACE value WITH THE RIGHT JOYSTICK IDENTIFIERˇˇˇ-->
-		<param name="dev" type="string" value="/dev/input/js1"/>
-		<param name="deadzone" value="0"/>
-	</node>
-
-	<!-- Start manual control nodes launcher. -->
-	<node pkg="sphero_formation" type="manual_ctrl_launch.sh" name="manual_launcher" args="$(arg sensitivity)" output="screen"/>
+    <!-- Start manual control nodes launcher. -->
+    <node pkg="sphero_formation" type="manual_ctrl_launch.sh" name="manual_launcher" args="$(arg sensitivity)" output="screen"/>
 </launch>

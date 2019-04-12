@@ -1,8 +1,4 @@
 <launch>
-	<!-- Set args -->
-	<arg name="wait_time" default="0"/>
-    <arg name="start_time" default="0"/>
-
 	<!-- Config file with initial velocities for each Sphero -->
 	<arg name="filename" default="$(find sphero_formation)/cfg/sphero_init_vel.cfg"/>
 
@@ -12,9 +8,5 @@
 	</node>
 
 	<!-- Start Reynolds controller nodes launcher. -->
-	<node pkg="sphero_formation" type="reynolds_launch.sh" name="reynolds_launcher" args="$(arg filename) sphero" output="screen">
-		<param name="wait_time" type="int" value="$(arg wait_time)"/>
-		<param name="start_time" type="int" value="$(arg start_time)"/>
-		<param name="run_type" type="string" value="real"/>
-	</node>
+	<node pkg="sphero_formation" type="reynolds_launch.sh" name="reynolds_launcher" args="$(arg filename) sphero" output="screen"/>
 </launch>
