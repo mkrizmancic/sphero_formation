@@ -226,7 +226,7 @@ Visualization Manager:
       Marker Topic: /robot_0/markers
       Name: MarkerArray0
       Namespaces:
-        robot_0: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -234,7 +234,7 @@ Visualization Manager:
       Marker Topic: /robot_1/markers
       Name: MarkerArray1
       Namespaces:
-        robot_1: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -242,7 +242,7 @@ Visualization Manager:
       Marker Topic: /robot_2/markers
       Name: MarkerArray2
       Namespaces:
-        robot_2: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -250,7 +250,7 @@ Visualization Manager:
       Marker Topic: /robot_3/markers
       Name: MarkerArray3
       Namespaces:
-        robot_3: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -258,7 +258,7 @@ Visualization Manager:
       Marker Topic: /robot_4/markers
       Name: MarkerArray4
       Namespaces:
-        robot_4: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -266,7 +266,7 @@ Visualization Manager:
       Marker Topic: /robot_5/markers
       Name: MarkerArray5
       Namespaces:
-        robot_5: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -274,7 +274,7 @@ Visualization Manager:
       Marker Topic: /robot_6/markers
       Name: MarkerArray6
       Namespaces:
-        robot_6: true
+        {}
       Queue Size: 6
       Value: true
   Enabled: true
@@ -302,7 +302,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 5.89549255
+      Distance: 6.32179213
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
@@ -317,10 +317,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.3797965
+      Pitch: 1.2547965
       Target Frame: robot_0/base_link
       Value: Orbit (rviz)
-      Yaw: 4.69857931
+      Yaw: 4.70858002
     Saved: ~
 Window Geometry:
   Displays:
@@ -338,5 +338,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1920
-  X: 0
+  X: 1920
   Y: 24

@@ -76,17 +76,17 @@ class NearestSearch(object):
             time = rospy.Time.now()
             key = agent.header.frame_id.split('/')[1]
 
-            # Get agent's position and initialize relative positions message
+            # Get agent's position and initialize relative positions message.
             agent_position = agent.pose.pose.position
             nearest_agents = OdometryArray()
             nearest_agents.header.stamp = time
 
-            # Append odometry data from observed agent to the publishing message
+            # Append odometry data from observed agent to the publishing message.
             nearest_agents.array.append(deepcopy(agent))
 
             # For all other agents calculate the distance from the observed
             # agent and if the distance is within specified, add the agent to
-            # the publishing message
+            # the publishing message.
             for agent2 in data:
                 friend_position = agent2.pose.pose.position
                 distance = get_distance(agent_position, friend_position)
@@ -97,10 +97,10 @@ class NearestSearch(object):
                     rel_pos.pose.pose.position.y = friend_position.y - agent_position.y
                     nearest_agents.array.append(rel_pos)
 
-            # Publish the relative positions message
+            # Publish the relative positions message.
             self.nearest[key].publish(nearest_agents)
 
-            # Initialize the wall and obstacle positions message
+            # Initialize the wall and obstacle positions message.
             avoids = PoseArray()
             avoids.header.stamp = time
 
@@ -116,8 +116,8 @@ class NearestSearch(object):
             for row in row_range:
                 for col in col_range:
                     # if key == 'sphero_0': print(self.map[row][col]/100, end=' ')
-                    # Check only elements within radius
-                    # Search obstacles in a circle instead of a square
+                    # Check only elements within radius.
+                    # Search obstacles in a circle instead of a square.
                     if (pow(row - or_row, 2) + pow(col - or_col, 2)) <= pow(self.r, 2):
                         if self.map[row][col] == 100:
                             x, y = self.index_to_pos(row, col)
@@ -127,15 +127,22 @@ class NearestSearch(object):
                             avoids.poses.append(obst)
                 # if key == 'sphero_0': print('\n')
 
-            # Publish the wall and obstacle positions message
+            # Publish the wall and obstacle positions message.
             self.avoid[key].publish(avoids)
 
     def __init__(self):
         """Create subscribers and publishers."""
 
-        # Get the number of agents
-        self.num_agents = rospy.get_param("/num_of_robots")
-        robot_name = rospy.get_param("~robot_name")
+        # Get parameters and initialize class variables.
+        self.num_agents = rospy.get_param('/num_of_robots')
+        robot_name = rospy.get_param('~robot_name')
+        using_sim_kalman = False
+        if rospy.get_param('/run_type') == 'sim':
+            using_sim_kalman = rospy.get_param('/use_kalman')
+            if not using_sim_kalman and rospy.get_param('/ctrl_loop_freq') != rospy.get_param('/data_stream_freq'):
+                rospy.logwarn('When not using Kalman filter in simulation, ctrl_loop_freq and '
+                              'data_stream_freq must be the same! Change these parameters in '
+                              '`setup_sim.launch` and interval_sim in `definitions.inc`!')
 
         # Create publishers for commands
         pub_keys = [robot_name + '_{}'.format(i) for i in range(self.num_agents)]
@@ -151,14 +158,18 @@ class NearestSearch(object):
             self.avoid[key] = rospy.Publisher('/' + key + '/avoid', PoseArray, queue_size=1)
 
         # Create subscribers
-        rospy.Subscriber("/map", OccupancyGrid, self.map_callback, queue_size=1)
+        rospy.Subscriber('/map', OccupancyGrid, self.map_callback, queue_size=1)
         rospy.sleep(0.5)  # Wait for first map_callback to finish
         rospy.Subscriber('/dyn_reconf/parameter_updates', Config, self.param_callback, queue_size=1)
         self.param_callback(None)
 
-        topic_name = '/' + robot_name + '_{}/odom'
+        if using_sim_kalman:
+            topic_name = '/' + robot_name + '_{}/odom_est'
+        else:
+            topic_name = '/' + robot_name + '_{}/odom'
+
         subs = [mf.Subscriber(topic_name.format(i), Odometry) for i in range(self.num_agents)]
-        self.ts = mf.ApproximateTimeSynchronizer(subs, 10, 0.1)
+        self.ts = mf.ApproximateTimeSynchronizer(subs, 10, 0.11)  # TODO: set this to be parametric as well
         self.ts.registerCallback(self.robot_callback)
 
         # Keep program from exiting

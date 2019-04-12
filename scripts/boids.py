@@ -8,6 +8,7 @@ from util import Vector2, angle_diff
 
 
 class MAFilter(object):
+    # TODO: remove if not necessary
     """Implementation of a moving average filter with variable window length."""
     def __init__(self, win_length):
         """
@@ -113,9 +114,10 @@ class Boid(object):
 
         # Create an empty list for storing velocity data
         # Initialize moving average filters
-        self.data_list = []
-        self.x_filter = MAFilter(3)
-        self.y_filter = MAFilter(3)
+        # TODO: remove if not necessary
+        # self.data_list = []
+        # self.x_filter = MAFilter(3)
+        # self.y_filter = MAFilter(3)
 
         # This dictionary holds values of each flocking components and is used
         # to pass them to the visualization markers publisher
@@ -204,7 +206,7 @@ class Boid(object):
 
         if count:
             direction /= count
-            direction.limit(self.max_force)
+            direction.limit(2 * self.max_force)
         rospy.logdebug("separation*:  %s", direction)
         return direction
 
@@ -301,14 +303,15 @@ class Boid(object):
             rospy.logdebug("acceleration: %s", acceleration / self.frequency)
             rospy.logdebug("velocity:     %s\n", self.velocity)
 
-            # Apply moving average filter on calculated velocity
-            filtered = Vector2()
-            filtered.x = self.x_filter.step(self.velocity.x)
-            filtered.y = self.y_filter.step(self.velocity.y)
+            # TODO: remove if not necessary
+            # # Apply moving average filter on calculated velocity
+            # filtered = Vector2()
+            # filtered.x = self.x_filter.step(self.velocity.x)
+            # filtered.y = self.y_filter.step(self.velocity.y)
 
-            # Store raw and filtered velocity in a list for later analysis
-            self.data_list.append([self.velocity.norm(), self.velocity.arg(),
-                                   filtered.norm(), filtered.arg()])
+            # # Store raw and filtered velocity in a list for later analysis
+            # self.data_list.append([self.velocity.norm(), self.velocity.arg(),
+            #                        filtered.norm(), filtered.arg()])
 
             # Return the the velocity as Twist message
             vel = Twist()

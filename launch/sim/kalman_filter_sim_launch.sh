@@ -20,10 +20,4 @@ do
 done
 echo "DONE"
 
-echo "Calling service to change verbosity level for robot_0 Kalman to DEBUG..."
-service_name="/robot_0/Kalman/set_logger_level"
-rosservice call --wait ${service_name} "logger: 'rosout'
-level: 'debug'"
-
-
 cat

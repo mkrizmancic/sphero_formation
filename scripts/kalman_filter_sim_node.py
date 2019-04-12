@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import tf
 import rospy
-from geometry_msgs.msg import PoseArray
 from nav_msgs.msg import Odometry
 
 from kalman_filter import KalmanFilter
-from util import pose_dist
-from sphero_formation.srv import *
 
 
 class KalmanFilterNode(object):
@@ -20,15 +16,6 @@ class KalmanFilterNode(object):
     the same namespace and uses Kalman filter to output steady position and
     velocity data for other nodes.
     """
-    def get_initial_position(self):
-        """Calls service which returns Sphero's initial position."""
-        rospy.wait_for_service('/return_initials')
-        try:
-            get_initials = rospy.ServiceProxy('/return_initials', ReturnInitials)
-            response = get_initials(rospy.get_namespace())
-            return response.initial
-        except rospy.ServiceException, e:
-            rospy.logerr(rospy.get_name() + ": Service call failed: %s", e)
 
     def sensor_callback(self, data):
         """Process received positions data and return Kalman estimation.
@@ -36,52 +23,59 @@ class KalmanFilterNode(object):
         """
 
         if self.initial_run:
+            # Initialize Kalman filter and estimation.
             initial_pos = data.pose.pose
-            # Initialize Kalman filter and estimation
             self.filter = KalmanFilter(1.0 / self.sub_frequency, initial_pos)
             self.X_est = Odometry()
             self.X_est.pose.pose = initial_pos
             self.initial_run = False
         else:
             X_measured = data.pose.pose
-            vX_measured = data.twist.twist
 
-            # If measurement data is not available, use only prediction step
-            # Else, use prediction and update step
+            # If measurement data is not available, use only prediction step.
+            # Else, use prediction and update step.
             if X_measured is None:
-                self.X_est = self.filter.predict(u=None)
+                self.X_est = self.filter.predict()
             else:
-                self.filter.predict(u=None)
-                self.X_est = self.filter.update(X_measured)
+                self.X_est = self.filter.predict_update(X_measured)
 
-            X_estimated = self.X_est.pose.pose
-            vX_estimated = self.X_est.twist.twist
-
-            rospy.logdebug(' x: % 7.5f, % 7.5f, %+7.5f', X_measured.position.x, X_estimated.position.x, X_measured.position.x - X_estimated.position.x)
-            rospy.logdebug(' y: % 7.5f, % 7.5f, %+7.5f', X_measured.position.y, X_estimated.position.y, X_measured.position.y - X_estimated.position.y)
-            rospy.logdebug('vx: % 7.5f, % 7.5f, %+7.5f', vX_measured.linear.x, vX_estimated.linear.x, vX_measured.linear.x - vX_estimated.linear.x)
-            rospy.logdebug('vy: % 7.5f, % 7.5f, %+7.5f\n', vX_measured.linear.y, vX_estimated.linear.y, vX_measured.linear.y - vX_estimated.linear.y)
+            if self.debug_enabled:
+                self.debug_pub.publish(self.X_est)
 
     def __init__(self):
         """Initialize agent instance, create subscribers and publishers."""
+        # Initialize class variables.
+        self.sub_frequency = rospy.get_param('/data_stream_freq')
+        self.pub_frequency = rospy.get_param('/ctrl_loop_freq')
+        self.debug_enabled = rospy.get_param('/debug_kalman')
+        self.X_est = None
 
-        # Initialize class variables
-        self.sub_frequency = 10
+        # Create publishers.
+        pub = rospy.Publisher('odom_est', Odometry, queue_size=self.pub_frequency)
+        if self.debug_enabled:
+            self.debug_pub = rospy.Publisher('debug_est', Odometry, queue_size=self.sub_frequency)
 
-        # Create subscribers
+        # Create subscribers.
         self.initial_run = True
-        rospy.Subscriber('odom', Odometry, self.sensor_callback, queue_size=1)
+        rospy.Subscriber('odom', Odometry, self.sensor_callback, queue_size=self.sub_frequency)
 
-        # Keep program from exiting
-        rospy.spin()
+        # Don't try to publish anything before variable is set.
+        while self.X_est is None:
+            rospy.sleep(0.1)
+
+        # Main while loop.
+        rate = rospy.Rate(self.pub_frequency)
+        while not rospy.is_shutdown():
+            pub.publish(self.X_est)
+            rate.sleep()
 
 
 if __name__ == '__main__':
     # Initialize the node and name it.
     rospy.init_node('Kalman')
 
-    # Go to class functions that do all the heavy lifting
-    # Do error checking
+    # Go to class functions that do all the heavy lifting.
+    # Do error checking.
     try:
         kf = KalmanFilterNode()
     except rospy.ROSInterruptException:

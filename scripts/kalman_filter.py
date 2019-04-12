@@ -50,20 +50,16 @@ class KalmanFilter(object):
         msg.twist.twist.linear.y = np_state[3][0]
         return msg
 
-    def predict(self, u):
-        """
-        Kalman's prediction phase.
-
-        Args:
-            u: input vector
-        """
+    def predict(self, ret=True):
+        """Kalman's prediction phase."""
         X_hat_m = np.dot(self.A, self.X_old)
         P_m = np.dot(np.dot(self.A, self.P_old), self.A.T) + self.Q
 
         self.X_old = X_hat_m
         self.P_old = P_m
 
-        return self.get_used_state(X_hat_m)
+        if ret:
+            return self.get_used_state(X_hat_m)
 
     def update(self, Xm):
         """
@@ -88,3 +84,8 @@ class KalmanFilter(object):
         self.P_old = P_p
 
         return self.get_used_state(X_hat_p)
+
+    def predict_update(self, Xm):
+        """Call predict and update."""
+        self.predict(ret=False)
+        return self.update(Xm)
