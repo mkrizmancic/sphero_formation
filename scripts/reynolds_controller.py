@@ -60,26 +60,15 @@ class ReynoldsController(object):
     def param_callback(self, data):
         """Call method for updating flocking parameters from server."""
         param_names = ['alignment_factor', 'cohesion_factor', 'separation_factor', 'avoid_factor',
-                       'max_speed', 'max_turning_rate', 'max_force', 'friction', 'crowd_radius',
+                       'max_speed', 'max_force', 'friction', 'crowd_radius',
                        'search_radius', 'avoid_radius']
         # Dictionary for passing parameters.
         param_dict = {param: rospy.get_param('/dyn_reconf/' + param) for param in param_names}
         self.agent.update_parameters(param_dict)
         self.params_set = True
 
-    def pull_data(self):
-        """Save velocity data from `boids.py` in csv format for analysis."""
-        # TODO: remove if not necessary
-        columns = ['Before-Norm', 'Before-Arg', 'After-Norm', 'After-Arg']
-        filename = '~/logs/' + rospy.get_namespace().split('/')[1] + '.csv'
-        pd.DataFrame(self.agent.data_list, columns=columns).to_csv(filename)
-
     def __init__(self):
         """Initialize agent instance, create subscribers and publishers."""
-        # Create a publisher for commands.
-        self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
-        self.markers_pub = rospy.Publisher('markers', MarkerArray, queue_size=1)
-
         # Initialize class variables.
         init_vel_x = rospy.get_param("~init_vel_x", 0)
         init_vel_y = rospy.get_param("~init_vel_y", 0)
@@ -91,16 +80,16 @@ class ReynoldsController(object):
         self.markers = MarkerSet()
         self.params_set = False
 
+        # Create a publisher for commands.
+        self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=frequency)
+        self.markers_pub = rospy.Publisher('markers', MarkerArray, queue_size=frequency)
+
         # Create subscribers.
         rospy.Subscriber('/dyn_reconf/parameter_updates', Config, self.param_callback, queue_size=1)
 
         subs = [mf.Subscriber("nearest", OdometryArray), mf.Subscriber("avoid", PoseArray)]
         self.ts = mf.TimeSynchronizer(subs, 10)
         self.ts.registerCallback(self.callback)
-
-        # Register function to execute before shutting down
-        # TODO: remove if not necessary
-        # rospy.on_shutdown(self.pull_data)
 
         # Keep program from exiting
         rospy.spin()

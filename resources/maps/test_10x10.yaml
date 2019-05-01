@@ -1,6 +1,6 @@
-image: borongaj.bmp
+image: test_10x10.bmp
 resolution: 0.05
-origin: [-0.2, -2.2, 0.0]
+origin: [-5, -5, 0.0]
 occupied_thresh: 0.8
 free_thresh: 0.2
 negate: 0

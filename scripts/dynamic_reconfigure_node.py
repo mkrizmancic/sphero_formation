@@ -4,7 +4,6 @@
 import rospy
 from dynamic_reconfigure.server import Server
 from sphero_formation.cfg import ReynoldsConfig
-from std_msgs.msg import Empty
 
 
 class DynReconf():
@@ -31,7 +30,6 @@ class DynReconf():
                         Separation: {separation_factor}
                         Avoid: {avoid_factor}
                         Max speed: {max_speed}
-                        Max turning rate: {max_turning_rate}
                         Max force: {max_force}
                         Friction: {friction}
                         Crowd radius: {crowd_radius}

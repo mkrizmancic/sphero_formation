@@ -2,15 +2,15 @@
     <!-- Set arguments. Change values in this section to control various parameters of execution. -->
     <!-- There are some parameters that can be changed in other launch files but you should generally leave them as they are -->
     <!-- ********** START OF SECTION ********** -->
-    <arg name="num_of_robots" default="7"/>         <!-- Number of robots used. -->
-    <arg name="map_name" default="random_10x10"/>   <!-- Name of the map used. -->
+    <arg name="num_of_robots" default="6"/>         <!-- Number of robots used. -->
+    <arg name="map_name" default="test_10x10"/>   <!-- Name of the map used. -->
     <arg name="ctrl_loop_freq" default="10"/>       <!-- Frequency used by Reynolds rules. -->
     <arg name="data_stream_freq" default="10"/>     <!-- Position streaming frequency, used by Kalman filter. -->
     <arg name="debug_boids" default="false"/>       <!-- Enable debugging for Reynolds controller node. -->
     <arg name="debug_kalman" default="false"/>      <!-- Enable debugging for Kalman filter node. -->
-    <arg name="use_kalman" default="true"/>         <!-- Use either estimated data from Kalman filter or true data from simulator. -->
+    <arg name="use_kalman" default="false"/>         <!-- Use either estimated data from Kalman filter or true data from simulator. -->
     <arg name="wait_time" default="0"/>             <!-- During first X seconds of execution, no velocity commands are sent to robots. -->
-    <arg name="start_time" default="0"/>            <!-- During first X seconds after "wait_time", inital velocity commands are sent to robots. -->
+    <arg name="start_time" default="2"/>            <!-- During first X seconds after "wait_time", inital velocity commands are sent to robots. -->
     <!-- *********** END OF SECTION *********** -->
 
     <arg name="map_world" default="$(find sphero_formation)/resources/sim/$(arg map_name)_$(arg num_of_robots).world"/>
@@ -33,9 +33,8 @@
     <!-- Start Stage simulator. -->
     <node pkg="stage_ros" type="stageros" name="simulator" args="$(arg map_world)"/>
 
-    <!-- Start rqt_reconfigure GUI and dynamic reconfigure node. -->
+    <!-- Start rqt GUI and dynamic reconfigure node. -->
     <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui"/>
-    <!-- <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/> -->
     <node pkg="sphero_formation" type="dynamic_reconfigure_node.py" name="dyn_reconf" output="screen"/>
 
     <!-- Start simulation_tf node: provide tf transforms for simulation. -->

@@ -1,0 +1,18 @@
+include "definitions.inc"
+
+# load an environment bitmap
+floorplan
+( 
+	name "test_10x10"
+	bitmap "../maps/test_10x10.bmp"
+	size [10.000 10.000 1.000]  # duzina sirina visina
+	pose [ 0.000 0.000 0.000 0.000 ]
+)
+
+# throw in robots
+sphero( pose [ 2.331 3.586  0.000 0.000 ] name "sphero_0" color "blue")
+sphero( pose [ 1.652 3.087 0.000 0.000 ] name "sphero_1" color "blue")
+sphero( pose [ 1.682 3.554 0.000 0.000 ] name "sphero_2" color "blue")
+sphero( pose [ 2.024 3.286 0.000 0.000 ] name "sphero_3" color "blue")
+sphero( pose [ 2.029 2.838 0.000 0.000 ] name "sphero_4" color "blue")
+sphero( pose [ 2.403 3.105  0.000 0.000 ] name "sphero_5" color "blue")

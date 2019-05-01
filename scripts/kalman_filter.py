@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from __future__ import division
 import rospy
 import numpy as np
 import numpy.linalg as npl
@@ -15,13 +15,13 @@ class KalmanFilter(object):
         """Initialize class variables and set initial conditions."""
         T = step_time
         self.X0 = self.get_numpy_state(position, velocity)
-        self.P0 = 0.001 * np.eye(4)
+        self.P0 = 1e-6 * np.eye(4)
 
-        # Q = 0.25 ** 2
-        # L = np.array([[T**2/2], [T**2/2], [T], [T]])
-        # self.Q = L.dot(Q).dot(L.T)
-        self.Q = 0.025 ** 2 * np.eye(4)
-        self.R = 0.001 * np.eye(2)
+        q = 9
+        Q = np.diag([q, q, q, q])
+        L = np.diag([T ** 2 / 2, T ** 2 / 2, T, T])
+        self.Q = L.dot(Q).dot(L.T)
+        self.R = 1e-6 * np.eye(2)
 
         self.A = np.array([[1, 0, T, 0], [0, 1, 0, T], [0, 0, 1, 0], [0, 0, 0, 1]])
         self.H = np.array([[1, 0, 0, 0], [0, 1, 0, 0]])

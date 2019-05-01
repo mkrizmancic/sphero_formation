@@ -4,8 +4,4 @@
 
 	<!-- Start Kalman filter nodes launcher. -->
 	<node pkg="sphero_formation" type="kalman_filter_launch.sh" name="kalman_launcher" output="screen"/>
-
-	<!-- Start rviz. -->
-	<param name="robot_description" textfile="$(find sphero_formation)/resources/simple_ball.urdf" />
-	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sphero_formation)/launch/real/sphero_real.rviz"/>
 </launch>

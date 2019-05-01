@@ -2,6 +2,7 @@
 
 num_spheros=$1
 filename="$2"
+data_stream="$3"
 
 echo "Launching $num_spheros Sphero driver nodes..."
 
@@ -19,7 +20,7 @@ i=0
 head -$num_spheros $filename |
 while read line; do
 	linearray=($line)
-	ROS_NAMESPACE="sphero_$i" rosrun sphero_sprk sphero_node.py _address:="${linearray[0]}" &
+	ROS_NAMESPACE="sphero_$i" rosrun sphero_sprk_ros sphero_node.py _address:="${linearray[0]}" _data_stream:=$data_stream &
 	((i++))
 done
 echo "DONE"

@@ -15,6 +15,7 @@ Function:
 import math
 import rospy
 import logging
+import numpy as np
 from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Pose, Vector3, Quaternion
@@ -145,6 +146,11 @@ class Vector2(object):
         if self.norm() > value:
             self.set_mag(value)
 
+    def limit_lower(self, value):
+        """Limit vector's minimum magnitude to given value."""
+        if self.norm() < value:
+            self.set_mag(value)
+
     def constrain(self, old_value, max_value):
         """Limit vector's change of direction to max_value from old_value."""
         desired_value = self.arg()
@@ -183,7 +189,7 @@ class MarkerSet(object):
         self.visualization = MarkerArray()
 
         # Make sure these keys are the same as the ones in `boids.py`
-        keys = ['alignment', 'cohesion', 'separation', 'avoid', 'acceleration', 'velocity']
+        keys = ['alignment', 'cohesion', 'separation', 'avoid', 'acceleration', 'velocity', 'estimated']
         self.markers = dict.fromkeys(keys)
 
         marker_id = 0
@@ -208,6 +214,7 @@ class MarkerSet(object):
         self.markers['avoid'].color = ColorRGBA(1, 1, 0, 1)         # yellow
         self.markers['acceleration'].color = ColorRGBA(0, 0, 0, 1)  # black
         self.markers['velocity'].color = ColorRGBA(1, 1, 1, 1)      # white
+        self.markers['estimated'].color = ColorRGBA(1, 0.55, 0, 1)  # orange
 
     def update_data(self, values):
         """
@@ -228,3 +235,28 @@ class MarkerSet(object):
 
             self.visualization.markers = self.markers.values()
         return self.visualization
+
+
+class MAFilter(object):
+    # TODO: remove if not necessary
+    """Implementation of a moving average filter with variable window length."""
+    def __init__(self, win_length):
+        """
+        Initialize empty window for averaging.
+
+        Args:
+            win_length: length of a window
+        """
+        # Window is initialized with NaNs so that the average would be correct
+        # during the first few steps while the window is not yet full
+        self.window = np.array([np.nan] * win_length)
+
+    def step(self, value):
+        """
+        Add new value at the end of the window, shift older values to the left
+        and return the average.
+        """
+        self.window[:-1] = self.window[1:]
+        self.window[-1] = value
+        # np.nanmean returns mean value while ignoring NaNs
+        return np.nanmean(self.window)

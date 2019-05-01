@@ -31,6 +31,7 @@ class KalmanFilterNode(object):
             self.initial_run = False
         else:
             X_measured = data.pose.pose
+            time = data.header.stamp
 
             # If measurement data is not available, use only prediction step.
             # Else, use prediction and update step.
@@ -38,6 +39,7 @@ class KalmanFilterNode(object):
                 self.X_est = self.filter.predict()
             else:
                 self.X_est = self.filter.predict_update(X_measured)
+            self.X_est.header.stamp = time
 
             if self.debug_enabled:
                 self.debug_pub.publish(self.X_est)

@@ -6,7 +6,7 @@ import colorsys
 from random import random, randint, seed
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Float32, ColorRGBA
+from std_msgs.msg import Float32, ColorRGBA, Bool
 
 
 class ManControlNode(object):
@@ -86,33 +86,37 @@ class ManControlNode(object):
             colors = colorsys.hsv_to_rgb(random(), 1.0, 1.0)
             self.pub_rgb_led.publish(colors[0], colors[1], colors[2], 1.0)
 
-        # # Hold L1 and select heading using right stick
-        # if data.buttons[4] == 1:
-        #     # Calculate heading, convert to degrees and wrap to [0, 359]
-        #     self.heading = (math.degrees(math.atan2(data.axes[2], data.axes[3])) + 180) % 360
-        #     self.pub_hdg.publish(self.heading)
-
-        # if data.buttons[5]:
-        #     self.pub_stab.publish(1)  # disable stabilization
-        # elif data.buttons[7]:
-        #     self.pub_stab.publish(0)  # enable stabilization
+        # Joystick R2 button - go in manual calibration mode
+        if data.buttons[7]:
+            if self.manual_calibration is False:
+                if self.display_true:
+                    rospy.loginfo("Manual calibration mode ON")
+                self.was_enabled = self.enabled
+                self.enabled = False
+                self.manual_calibration = True
+                self.pub_calibrate.publish(1)
+            else:
+                if self.display_true:
+                    rospy.loginfo("Manual calibration mode OFF")
+                self.manual_calibration = False
+                self.pub_calibrate.publish(0)
+                self.enabled = self.was_enabled
 
     def __init__(self):
         """Create subscribers and publishers and initialize class variables."""
 
         # Create publishers for commands
         self.pub_vel = rospy.Publisher('cmd_vel', Twist, queue_size=1)
-        # self.pub_hdg = rospy.Publisher('set_heading', Float32, queue_size=1)
-        # self.pub_b_led = rospy.Publisher('set_back_led', Float32, queue_size=1)
         self.pub_rgb_led = rospy.Publisher('set_color', ColorRGBA, queue_size=1)
-        # self.pub_stab = rospy.Publisher('disable_stabilization', Bool, queue_size=1)
+        self.pub_calibrate = rospy.Publisher('manual_calibration', Bool, queue_size=1)
 
         # Set class variables
         self.sensitivity = rospy.get_param('~sensitivity', 0.2)  # left stick sensitivity
         self.frequency = rospy.get_param('/ctrl_loop_freq')
         self.real_vel_stp = 0.5
         self.driving_mode = 'analog'
-        self.enabled = False
+        self.manual_calibration = False
+        self.was_enabled = self.enabled = False
 
         # Work-around for displaying info messages. Currently, each Sphero has
         # its own manual control node even though they all get same commands.

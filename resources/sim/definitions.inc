@@ -39,11 +39,10 @@ resolution 0.01
 
 interval_sim 100  # simulation timestep in milliseconds
 
-
 window
 ( 
-	size [ 960.000 540.000 ] 
-
+	size [ 430.000 480.000 ] 
+	center [ 0 -0.3 ]
 	rotate [ 0.000 0 ]
-	scale 100
+	scale 42
 )

@@ -11,6 +11,7 @@
 	</node>
 
 	<!-- Record a bag for debug purposes -->
-	<arg name="rosbag_args" default="-O $(find sphero_formation)/sphero_sim_vel.bag --duration=120 /robot_0/cmd_vel /robot_0/odom"/>
+	<!-- <arg name="rosbag_args" default='-O $(find sphero_formation)/data/sim_test.bag -e "(.*)/odom" '/> -->
+	<!-- <arg name="rosbag_args" default='-O $(find sphero_formation)/data/kalman_test.bag /robot_0/odom /robot_0/debug_est'/> -->
 	<!-- <node pkg="rosbag" type="record" name="rosbag_record" args="$(arg rosbag_args)" output="screen"/> -->
 </launch>

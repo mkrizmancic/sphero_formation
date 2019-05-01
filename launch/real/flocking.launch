@@ -9,4 +9,8 @@
 
 	<!-- Start Reynolds controller nodes launcher. -->
 	<node pkg="sphero_formation" type="reynolds_launch.sh" name="reynolds_launcher" args="$(arg filename) sphero" output="screen"/>
+
+	<!-- Uncomment for recording rosbags. -->
+	<!-- <arg name="rosbag_args" default='-O $(find sphero_formation)/data/real_flock.bag -e "(.*)/odom" '/> 
+	<node pkg="rosbag" type="record" name="rosbag_record" args="$(arg rosbag_args)" output="screen"/> -->
 </launch>
