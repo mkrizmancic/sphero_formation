@@ -11,7 +11,7 @@ In this work, a decentralized control algorithm based on Reynolds' rules is impl
 ## Installation
 Simply clone this repository inside ROS workspace and run `catkin_make` in workspace root.
 
-Simulation part uses _stage_ros_ simulator.
+Simulation part uses [stage_ros](http://wiki.ros.org/stage_ros) simulator.
 
 If you wish to use this with Sphero robots, you must also download this repository: https://github.com/antonellabarisic/sphero_sprk_ros.
 
@@ -22,7 +22,7 @@ _OptiTrack_ is used for localization of robots. However, Spheros cannot be equip
 1. Set values for all desired parameters inside _launch/setup_sim.launch_.
 1. Set initial velocities in _cfg/sphero_init_vel.cfg_.
 1. In first terminal run `roscore` (optional)
-1. In second terminal run `roslaunch sphero_formation setup_real.launch`
+1. In second terminal run `roslaunch sphero_formation setup_sim.launch`
 1. In third terminal run `roslaunch sphero_formation reynolds_sim.launch`
 
 **Real world:**
