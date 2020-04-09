@@ -34,7 +34,7 @@
     <node pkg="stage_ros" type="stageros" name="simulator" args="$(arg map_world)"/>
 
     <!-- Start rqt GUI and dynamic reconfigure node. -->
-    <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui"/>
+    <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_dynamic_reconfigure"/>
     <node pkg="sphero_formation" type="dynamic_reconfigure_node.py" name="dyn_reconf" output="screen"/>
 
     <!-- Start simulation_tf node: provide tf transforms for simulation. -->
