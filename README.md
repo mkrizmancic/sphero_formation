@@ -9,7 +9,7 @@ This repository contains algorithms developed for the student paper proposed for
 In this work, a decentralized control algorithm based on Reynolds' rules is implemented on a multi-agent system of spherical robots. The algorithm procedurally generates motion patterns that resemble those characteristic for flocks of birds or schools of fish. Generated motion patterns allow robots to move in a closed space with static obstacles. A Bluetooth driver for controlling the robots has also been developed. The complete system is implemented using the ROS framework and Python programming language. The results of this work are demonstrated with experiments in a simulated environment, as well as in the real world using Sphero SPRK+ robots localized with _OptiTrack_.
 
 ## Installation
-Simply clone this repository inside ROS workspace and run `catkin_make` in workspace root.
+Simply clone this repository inside ROS workspace and run `catkin build` in workspace root.
 
 Simulation part uses [stage_ros](http://wiki.ros.org/stage_ros) simulator.
 
@@ -36,6 +36,11 @@ _OptiTrack_ is used for localization of robots. However, Spheros cannot be equip
 1. In fourth terminal run `roslaunch sphero_formation tracking.launch`
 1. In fifth terminal run `roslaunch sphero_formation flocking.launch`
 
-You can manually control robots with Logitech F710 joystick.
+Flocking algorithm parameters can be changed during runtime with _rqt_reconfigure_. GUI for changing parameters is launched from `setup_*.launch` files. 
 
-Flocking algorithm parameters can be changed during runtime with _rqt_reconfigure_.
+##### Manual control:
+Robots can be controlled manually with Logitech F710 joystick.
+
+TODO: specify button mappings
+
+
