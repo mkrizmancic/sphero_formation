@@ -3,12 +3,10 @@
   <arg name="num_of_robots" default="4"/>
 	<arg name="data_stream_option" default="None"/>  <!-- Options for Sphero's data stream: None, All, Locator -->
 
-	<!-- Config file with Sphero addresses -->
-	<arg name="filename" default="$(find sphero_formation)/cfg/sphero_addresses.txt"/>
-
 	<!-- Set arguments as ros parameter so all nodes can access them. -->
 	<param name="num_of_robots" type="int" value="$(arg num_of_robots)"/>
 
-	<!-- Start Sphero driver nodes launcher. -->
-	<node pkg="sphero_formation" type="drivers_launch.sh" name="drivers_launcher" args="$(arg num_of_robots) $(arg filename) $(arg data_stream_option)" output="screen"/>
+	<!-- Launch drivers and manual control nodes from the drivers package. -->
+	<include file="$(find sphero_sprk_ros)/launch/drivers.launch" pass_all_args="true"/>
+
 </launch>

@@ -5,10 +5,8 @@
     <arg name="map_name" default="borongaj"/>       <!-- Name of the map used. -->
     <arg name="ctrl_loop_freq" default="10"/>       <!-- Frequency used by Reynolds rules. -->
     <arg name="data_stream_freq" default="100"/>    <!-- Position streaming frequency, used by Kalman filter. -->
-    <arg name="debug_boids" default="false"/>        <!-- Enable debugging for Reynolds controller node. -->
-    <arg name="debug_kalman" default="false"/>       <!-- Enable debugging for Kalman filter node. -->
-    <arg name="joy_path" default="/dev/input/js1"/> <!-- Joystick device path. -->
-    <arg name="sensitivity" default="0.2"/>         <!-- Sensitivity of a joystick. [0.0 - 1.0] -->
+    <arg name="debug_boids" default="false"/>       <!-- Enable debugging for Reynolds controller node. -->
+    <arg name="debug_kalman" default="false"/>      <!-- Enable debugging for Kalman filter node. -->
     <arg name="wait_time" default="0"/>             <!-- During first X seconds of execution, no velocity commands are sent to robots. -->
     <arg name="start_time" default="2"/>            <!-- During first X seconds after "wait_time", inital velocity commands are sent to robots. -->
     <!-- *********** END OF SECTION *********** -->
@@ -35,13 +33,4 @@
     <!-- Start rviz. -->
     <param name="robot_description" textfile="$(find sphero_formation)/resources/simple_ball.urdf" />
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(find sphero_formation)/launch/real/sphero_real.rviz"/>
-
-    <!-- Start Joy node: user control with joystick. -->
-    <node pkg="joy" type="joy_node" name="JoyInput">
-        <param name="dev" type="string" value="$(arg joy_path)"/>
-        <param name="deadzone" value="0"/>
-    </node>
-
-    <!-- Start manual control nodes launcher. -->
-    <node pkg="sphero_formation" type="manual_ctrl_launch.sh" name="manual_launcher" args="$(arg sensitivity)" output="screen"/>
 </launch>
