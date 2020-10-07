@@ -1,7 +1,7 @@
 <launch>
 	<!-- Start Initialization node: Get initial Spheros positions. -->
-	<node pkg="sphero_formation" type="sphero_init.py" name="initialization" output="screen"/>
+	<node pkg="sphero_ros_control" type="sphero_init.py" name="initialization" output="screen"/>
 
 	<!-- Start Kalman filter nodes launcher. -->
-	<node pkg="sphero_formation" type="kalman_filter_launch.sh" name="kalman_launcher" output="screen"/>
+	<node pkg="sphero_ros_control" type="kalman_filter_launch.sh" name="kalman_launcher" output="screen"/>
 </launch>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>sphero_formation</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>Python / ROS implementation of Reynolds flocking algorithm. Simulation and real-world usage.</description>
 
   <maintainer email="marko.krizmancic@fer.hr">marko</maintainer>
@@ -10,22 +10,14 @@
 
   <url type="repository">https://github.com/mkrizmancic/sphero_formation</url>
 
-
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>roscpp</build_depend>
-  <build_depend>rospy</build_depend>
-  <build_depend>dynamic_reconfigure</build_depend>
+  <depend>roscpp</depend>
+  <depend>rospy</depend>
+  <depend>dynamic_reconfigure</depend>
+
   <build_depend>message_generation</build_depend>
-
-  <build_export_depend>roscpp</build_export_depend>
-  <build_export_depend>rospy</build_export_depend>
-
-  <exec_depend>roscpp</exec_depend>
-  <exec_depend>rospy</exec_depend>
-  <exec_depend>dynamic_reconfigure</exec_depend>
   <exec_depend>message_runtime</exec_depend>
-
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

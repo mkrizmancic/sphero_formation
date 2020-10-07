@@ -8,7 +8,7 @@
     <arg name="data_stream_freq" default="10"/>     <!-- Position streaming frequency, used by Kalman filter. -->
     <arg name="debug_boids" default="false"/>       <!-- Enable debugging for Reynolds controller node. -->
     <arg name="debug_kalman" default="false"/>      <!-- Enable debugging for Kalman filter node. -->
-    <arg name="use_kalman" default="false"/>         <!-- Use either estimated data from Kalman filter or true data from simulator. -->
+    <arg name="use_kalman" default="true"/>         <!-- Use either estimated data from Kalman filter or true data from simulator. -->
     <arg name="wait_time" default="0"/>             <!-- During first X seconds of execution, no velocity commands are sent to robots. -->
     <arg name="start_time" default="2"/>            <!-- During first X seconds after "wait_time", inital velocity commands are sent to robots. -->
     <!-- *********** END OF SECTION *********** -->
@@ -45,5 +45,5 @@
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(find sphero_formation)/launch/sim/sphero_sim.rviz"/>
 
     <!-- Start Kalman filter nodes launcher. -->
-    <node if="$(arg use_kalman)" pkg="sphero_formation" type="kalman_filter_sim_launch.sh" name="kalman_launcher" args="$(arg num_of_robots)" output="screen"/>
+    <node if="$(arg use_kalman)" pkg="sphero_ros_control" type="kalman_filter_sim_launch.sh" name="kalman_launcher" args="$(arg num_of_robots)" output="screen"/>
 </launch>

@@ -15,6 +15,7 @@ from nav_msgs.msg import Odometry
 
 
 def callback(msg):
+    # TODO: write as class and remove global variable
     global tfBuffer
     try:
         tf = geometry_msgs.msg.TransformStamped()
