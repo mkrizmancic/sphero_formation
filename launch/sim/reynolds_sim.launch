@@ -3,12 +3,10 @@
 	<arg name="filename" default="$(find sphero_formation)/cfg/sphero_init_vel.cfg"/>
 
 	<!-- Start Reynolds controller nodes launcher. -->
-	<node pkg="sphero_formation" type="reynolds_launch.sh" name="reynolds_launcher" args="$(arg filename) robot" output="screen"/>
+	<node pkg="sphero_formation" type="reynolds_launch.sh" name="reynolds_launcher" args="$(arg filename)" output="screen"/>
 
 	<!-- Start nearest_search node: search for other robots in range. -->
-	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen">
-		<param name="robot_name" type="string" value="robot"/>
-	</node>
+	<node pkg="sphero_formation" type="nearest_search.py" name="search" output="screen"/>
 
 	<!-- Record a bag for debug purposes -->
 	<!-- <arg name="rosbag_args" default='-O $(find sphero_formation)/data/sim_test.bag -e "(.*)/odom" '/> -->

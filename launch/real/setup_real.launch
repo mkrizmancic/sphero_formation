@@ -21,9 +21,7 @@
     <param name="wait_time" type="double" value="$(arg wait_time)"/>
     <param name="start_time" type="double" value="$(arg start_time)"/>
     <param name="run_type" type="string" value="real"/>
-
-    <!-- Start Optitrack data streaming node. -->
-    <include file="$(find mocap_optitrack)/launch/mocap.launch"/>
+    <param name="data_associated" type="string" value="false"/>
 
     <!-- Start map server. -->
     <node pkg="map_server" type="map_server" args="$(arg map_yaml)" name="map_server"/>

@@ -135,7 +135,7 @@ class NearestSearch(object):
 
         # Get parameters and initialize class variables.
         self.num_agents = rospy.get_param('/num_of_robots')
-        robot_name = rospy.get_param('~robot_name')
+        robot_name = rospy.get_param('/robot_name')
         using_sim_kalman = False
         if rospy.get_param('/run_type') == 'sim':
             using_sim_kalman = rospy.get_param('/use_kalman')
