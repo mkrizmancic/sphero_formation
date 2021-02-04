@@ -8,6 +8,9 @@ This repository contains algorithms developed for the student paper proposed for
 **Abstract**:
 In this work, a decentralized control algorithm based on Reynolds' rules is implemented on a multi-agent system of spherical robots. The algorithm procedurally generates motion patterns that resemble those characteristic for flocks of birds or schools of fish. Generated motion patterns allow robots to move in a closed space with static obstacles. A Bluetooth driver for controlling the robots has also been developed. The complete system is implemented using the ROS framework and Python programming language. The results of this work are demonstrated with experiments in a simulated environment, as well as in the real world using Sphero SPRK+ robots localized with _OptiTrack_.
 
+## IMPORTANT NOTICE:
+I recently started a reorganization of the repository and the current version is be broken (unavailable outside packages are necessary). Unfortunately, I can't say when that might get fixed. In the meantime, check out an older version when everything was still in the same place: https://github.com/mkrizmancic/sphero_formation/tree/0ac14aad3dd1a0af26f191c017e213279eebd52e
+
 ## Installation
 Simply clone this repository inside ROS workspace and run `catkin build` in workspace root.
 
